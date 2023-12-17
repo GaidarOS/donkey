@@ -3,16 +3,11 @@ package main
 import (
 	"log"
 	"os"
-	"receipt_store/config"
 	"receipt_store/routes"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
-)
-
-var (
-	conf *config.Config
 )
 
 func init() {
@@ -38,12 +33,13 @@ func main() {
 
 	app.Use(recover.New())
 
-	app.Get("/download", routes.DownloadFile)
+	api_v1 := app.Group("/api/v1")
+	api_v1.Get("/download", routes.DownloadFile)
 	// Route to handle file uploads
-	app.Post("/upload", routes.SaveFile)
-	app.Delete("/delete", routes.DeleteFile)
-	app.Post("/config", routes.UpdateConfig)
-	app.Get("/list", routes.ListFiles)
+	api_v1.Post("/upload", routes.SaveFile)
+	api_v1.Delete("/delete", routes.DeleteFile)
+	api_v1.Post("/config", routes.UpdateConfig)
+	api_v1.Get("/list", routes.ListFiles)
 
 	// Start server on port 3000
 	err := app.Listen(":" + os.Getenv("PORT"))

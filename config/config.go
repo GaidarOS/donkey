@@ -6,9 +6,11 @@ import (
 )
 
 type Config struct {
-	Dir   string
-	Port  string
-	Depth int
+	Dir                string
+	Port               string
+	Depth              string
+	ConfFile           string
+	AllowedHeaderTypes map[string]bool
 }
 
 var (

@@ -7,6 +7,7 @@ import (
 
 	"receipt_store/config"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -69,7 +70,48 @@ func SaveFile(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "File uploaded successfully"})
 }
 
-func UpdateConfig(c *fiber.Ctx) error  {
+func UpdateConfig(c *fiber.Ctx) error {
 
-	return nil
+	log.Println("Will create the config file if changed")
+
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Print("Error creating file watcher", err)
+	}
+	defer watcher.Close()
+
+	// check for updates on the webapp.yaml and update the webapp when detected
+	go func() {
+		wtchr, err := fsnotify.NewWatcher()
+		if err != nil {
+			log.Print("Error creating file watcher", err)
+		}
+		addToWatcher(wtchr, config.AppConf.ConfFile)
+		defer wtchr.Close()
+		for {
+			select {
+			// watch for events
+			case event := <-wtchr.Events:
+				if event.Op.String() == "CHMOD" {
+					log.Print("Webapp.yaml changes detected", event.Op.String())
+					reloadConfig()
+				}
+			case err := <-wtchr.Errors:
+				log.Print("webapp didn't change changed", err)
+			}
+			addToWatcher(wtchr, config.AppConf.ConfFile)
+		}
+	}()
+	// // Make sure the job never ends
+	select {}
+}
+
+func addToWatcher(watcher *fsnotify.Watcher, filename string) {
+	if err := watcher.Add(filename); err != nil {
+		log.Printf("Could not add file to the watcher", err)
+	}
+}
+
+func reloadConfig() {
+
 }

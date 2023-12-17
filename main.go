@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"receipt_store/config"
 	"receipt_store/routes"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,8 +11,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var (
+	conf *config.Config
+)
+
 func init() {
 	// Load .env file
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -28,7 +34,6 @@ func init() {
 func main() {
 	app := fiber.New(fiber.Config{
 		AppName: "Gaidaros",
-		
 	})
 
 	app.Use(recover.New())
@@ -36,6 +41,9 @@ func main() {
 	app.Get("/download", routes.DownloadFile)
 	// Route to handle file uploads
 	app.Post("/upload", routes.SaveFile)
+	app.Delete("/delete", routes.DeleteFile)
+	app.Post("/config", routes.UpdateConfig)
+	app.Get("/list", routes.ListFiles)
 
 	// Start server on port 3000
 	err := app.Listen(":" + os.Getenv("PORT"))

@@ -1,8 +1,9 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 	"os"
+	"receipt_store/config"
 	"receipt_store/routes"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,26 +16,27 @@ func init() {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		slog.Error("Error loading .env file", err)
 	}
 
 	// Make sure that the base directory exists
-	log.Println(os.Getenv("DIR"))
-	if err := os.MkdirAll(os.Getenv("DIR"), os.ModePerm); err != nil {
-		log.Fatal(err)
+	slog.Debug(os.Getenv("DIR"))
+	if err := os.MkdirAll(config.AppConf.Dir, os.ModePerm); err != nil {
+		slog.Error("Couldn't create the directory", err)
 	}
 
 }
 
 func main() {
 	app := fiber.New(fiber.Config{
-		AppName: "Gaidaros",
+		AppName: "Donkey",
 	})
 
 	app.Use(recover.New())
 
 	api_v1 := app.Group("/api/v1")
 	api_v1.Get("/download", routes.DownloadFile)
+
 	// Route to handle file uploads
 	api_v1.Post("/upload", routes.SaveFile)
 	api_v1.Delete("/delete", routes.DeleteFile)
@@ -42,8 +44,8 @@ func main() {
 	api_v1.Get("/list", routes.ListFiles)
 
 	// Start server on port 3000
-	err := app.Listen(":" + os.Getenv("PORT"))
+	err := app.Listen(":" + config.AppConf.Port)
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("Couldn't start the fiber server", err)
 	}
 }

@@ -3,29 +3,31 @@ package config
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"log/slog"
 	"os"
+	"receipt_store/helper"
+	"receipt_store/logger"
 
 	"github.com/fsnotify/fsnotify"
 )
 
 type Config struct {
-	Dir                string
-	Port               string
-	Depth              string
-	ConfFile           string
-	AllowedHeaderTypes map[string]bool
+	Dir                string          `json:"dir" default:"uploads"`
+	Port               string          `json:"port" default:"8080"`
+	Depth              string          `json:"depth" default:"3"`
+	ConfFile           string          `json:"confFile" default:"./config.json"`
+	AllowedHeaderTypes map[string]bool `json:"allowedHeaderTypes"`
 }
 
 var (
+	slogger             = logger.Logger()
 	default_config_path = "./config.json"
 
 	AppConf = Config{
 		ConfFile: default_config_path,
 	}
 
-	AllowedHeaderTypes = map[string]bool{
+	allowedHeaderTypes = map[string]bool{
 		"image/gif":       true,
 		"image/jpeg":      true,
 		"image/png":       true,
@@ -41,68 +43,68 @@ var (
 func init() {
 	// Default config path
 	// check if file exists
-	f, err := initChecks()
+	filesExist, err := initChecks()
 	if err != nil {
-		slog.Error("Critical Error!", err)
+		slogger.Error("Critical Error!", err)
 		os.Exit(1)
 	}
 
-	if f {
-		AppConf.updateFromFile(AppConf.ConfFile)
+	if filesExist {
+		AppConf.updateFromFile()
 		if len(AppConf.AllowedHeaderTypes) == 0 {
-			AppConf.AllowedHeaderTypes = AllowedHeaderTypes
+			AppConf.AllowedHeaderTypes = allowedHeaderTypes
 		}
-		slog.Info("Config", slog.Any("conf", AppConf))
+		slogger.Debug("Config", slog.Any("conf", AppConf))
 		AppConf.watchConfig()
-	}else{
-
+	} else {
+		slogger.Error("No conifg files found. Will continue with defaults")
 	}
 }
 
 func initChecks() (bool, error) {
 	// Checks if the file or the environment variables exist
-	if _, err := os.Stat(default_config_path); err == nil {
+	if _, err := os.Stat(AppConf.ConfFile); err == nil {
 		return true, nil
-	} else if errors.Is(err, os.ErrNotExist){
+	} else if errors.Is(err, os.ErrNotExist) {
 		_, present := os.LookupEnv("PORT")
 		if present {
 			return false, nil
 		}
-		return false, errors.New("No PORT variable found")
+		return false, errors.New("no port variable found")
 	} else {
-		return false, errors.New("Neither config file, not env variables present")
+		return false, errors.New("neither config file, not env variables present")
 	}
 }
 
-func (c *Config) updateFromFile(filename string) {
+func (c *Config) updateFromFile() {
 
-	file, err := os.ReadFile(filename)
+	file, err := os.ReadFile(c.ConfFile)
 	if err != nil {
-		slog.Error("No file: ", err)
+		slogger.Error("No file: ", err)
 	}
 
 	err = json.Unmarshal([]byte(file), &c)
 	if err != nil {
-		slog.Error("Err:", err)
+		slogger.Error("Could not unmarshal the file", err)
 	}
 
 }
 
 func (c *Config) watchConfig() {
 
-	log.Println("Will create the config file if changed")
+	slogger.Info("Will create the config file if changed")
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Print("Error creating file watcher", err)
+		slogger.Warn("Error creating file watcher", err)
 	}
 	defer watcher.Close()
 
-	// check for updates on the webapp.yaml and update the webapp when detected
+	// check for updates on the configFile and update the config when detected
 	go func() {
 		wtchr, err := fsnotify.NewWatcher()
 		if err != nil {
-			log.Print("Error creating file watcher", err)
+			slogger.Error("Error creating file watcher", err)
 		}
 		addToWatcher(wtchr, c.ConfFile)
 		defer wtchr.Close()
@@ -111,54 +113,34 @@ func (c *Config) watchConfig() {
 			// watch for events
 			case event := <-wtchr.Events:
 				if event.Op.String() == "CHMOD" {
-					log.Print("Webapp.yaml changes detected", event.Op.String())
-					c.updateFromFile(c.ConfFile)
+					slogger.Info("config.json changes detected", slog.Any("event", event.Op.String()))
+					c.updateFromFile()
 				}
 			case err := <-wtchr.Errors:
-				log.Print("webapp didn't change changed", err)
+				slogger.Error("Config didn't change changed", err)
 			}
 			addToWatcher(wtchr, c.ConfFile)
 		}
 	}()
-	// // Make sure the job never ends
-	select {}
+
 }
 
 func addToWatcher(watcher *fsnotify.Watcher, filename string) {
 	if err := watcher.Add(filename); err != nil {
-		log.Println("Could not add file to the watcher", err)
+		slogger.Error("Could not add file to the watcher", err)
 	}
 }
 
-func writeToFile(config Config) string {
+func (c *Config) writeToConf() error {
 	// Marshal the struct to JSON
-	jsonData, err := json.MarshalIndent(config, "", "  ")
+	jsonData, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
-		slog.Error("Error marshaling JSON:", err)
-		return ""
+		slogger.Error("Error marshaling JSON:", err)
+		return err
 	}
 
-	// Write JSON data to a file
-	fileName := "config-test.json"
-	// err = writeToFile(fileName, jsonData)
-	file, err := os.Create(fileName)
-	if err != nil {
-		slog.Error("Error creating the file", err)
-		return ""
-	}
-	defer file.Close()
+	helper.WriteToFile(c.ConfFile, jsonData)
 
-	_, err = file.Write(jsonData)
-	if err != nil {
-		slog.Error("Error writting to file!", err)
-		return fileName
-	}
-
-	slog.Info("Config successfully saved to", slog.Any("filename", fileName))
-	return fileName
-}
-
-func deleteFile(fileName string) error {
-	err := os.Remove(fileName)
-	return err
+	slogger.Info("Config successfully saved to", slog.Any("filename", c.ConfFile))
+	return nil
 }

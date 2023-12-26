@@ -15,7 +15,7 @@ func TestReadConfig(t *testing.T) {
 		Dir:                "uploads",
 		Port:               "8080",
 		Depth:              "3",
-		ConfFile:           "./config-test.json",
+		ConfFile:           "../config-test.json",
 		AllowedHeaderTypes: map[string]bool{"image/vnd.djvu": true},
 	}
 	cfg.writeToConf()
@@ -43,7 +43,7 @@ func TestReadConfig(t *testing.T) {
 		},
 		"ConfFile": {
 			got:      cfg.ConfFile,
-			expected: "./config-test.json",
+			expected: "../config-test.json",
 			pass:     true,
 		},
 		"AllowedHeaderTypes": {

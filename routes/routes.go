@@ -28,10 +28,10 @@ func DeleteFiles(c *fiber.Ctx) error {
 	}
 	// Delete each file
 	for _, filename := range request.Files {
-		go func(filename string){
+		go func(filename string) {
 			err := helper.DeleteFile(filename)
 			if err != nil {
-				return 
+				return
 			}
 		}(filename)
 	}

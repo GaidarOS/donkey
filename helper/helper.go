@@ -16,7 +16,7 @@ func DeleteFile(fileName string) error {
 		return err
 	}
 	err := os.Remove(fileName)
-	return err	
+	return err
 }
 
 func WriteToFile(fileName string, data []byte) error {
@@ -31,7 +31,7 @@ func WriteToFile(fileName string, data []byte) error {
 
 	_, err = file.Write(data)
 	if err != nil {
-		slogger.Error("Error writting to file!", err)
+		slogger.Error("Error writing to file!", err)
 		return err
 	}
 	return nil

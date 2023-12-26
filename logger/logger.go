@@ -13,7 +13,7 @@ var (
 	level = os.Getenv("LOG_LEVEL")
 	opts  = slog.HandlerOptions{
 		Level:     logLevel(level),
-		AddSource: checkLoglevel(level),
+		AddSource: checkLogLevel(level),
 		// The bellow changes the logger time to unix time for manipulation
 		ReplaceAttr: func(groups []string, attr slog.Attr) slog.Attr {
 			// Match the key we want
@@ -28,17 +28,14 @@ var (
 
 func logLevel(logLevel string) slog.Level {
 	// Map the available levels
-	levels := map[string]slog.Level{"ERROR": slog.LevelError, "DEBUG": slog.LevelDebug, "WARN": slog.LevelWarn, "":slog.LevelInfo, "INFO":slog.LevelInfo}
+	levels := map[string]slog.Level{"ERROR": slog.LevelError, "DEBUG": slog.LevelDebug, "WARN": slog.LevelWarn, "": slog.LevelInfo, "INFO": slog.LevelInfo}
 	return levels[strings.ToUpper(logLevel)]
 }
 
-func checkLoglevel(logLevel string) bool {
+func checkLogLevel(logLevel string) bool {
 	// Check if level is set to debug
-	// If true enable the addSource on the logs  
-	if strings.ToUpper(logLevel) == "DEBUG" {
-		return true
-	}
-	return false
+	// If true enable the addSource on the logs
+	return strings.ToUpper(logLevel) == "DEBUG"
 }
 
 func Logger() *slog.Logger {

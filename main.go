@@ -10,7 +10,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/joho/godotenv"
+	_ "github.com/joho/godotenv/autoload"
 
 	slogfiber "github.com/samber/slog-fiber"
 )
@@ -21,11 +21,6 @@ var (
 
 func init() {
 	// Load .env file
-
-	err := godotenv.Load()
-	if err != nil {
-		slog.Error("Error loading .env file", err)
-	}
 
 	// Make sure that the base directory exists
 	if err := os.MkdirAll(config.AppConf.Dir, os.ModePerm); err != nil {
@@ -39,8 +34,6 @@ func main() {
 	app := fiber.New(fiber.Config{
 		AppName: "Donkey",
 	})
-
-	// logr.Info("Different logger")
 
 	app.Use(recover.New())
 	// pass the custom logger through the fiber context
@@ -56,7 +49,7 @@ func main() {
 	api_v1.Get("/list", routes.ListFiles)
 
 	// Start server on port 3000
-	slog.Debug("Starting the webserver!")
+	slog.Debug("Starting the web-server!")
 	err := app.Listen(":" + config.AppConf.Port)
 	if err != nil {
 		slog.Error("Couldn't start the fiber server", err)

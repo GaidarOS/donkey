@@ -21,7 +21,7 @@ type Config struct {
 
 var (
 	slogger             = logger.Logger()
-	default_config_path = "./config.json"
+	default_config_path = "../config.json"
 
 	AppConf = Config{
 		ConfFile: default_config_path,
@@ -57,7 +57,7 @@ func init() {
 		slogger.Debug("Config", slog.Any("conf", AppConf))
 		AppConf.watchConfig()
 	} else {
-		slogger.Error("No conifg files found. Will continue with defaults")
+		slogger.Error("No config files found. Will continue with defaults")
 	}
 }
 

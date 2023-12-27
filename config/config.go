@@ -11,17 +11,25 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
+type Token struct {
+	AccessPaths []string `json:"access_paths"`
+	Admin       bool     `json:"admin"`
+	UserName    string   `json:"username"`
+	Value       string   `json:"value"`
+}
+
 type Config struct {
 	Dir                string          `json:"dir" default:"uploads"`
 	Port               string          `json:"port" default:"8080"`
 	Depth              string          `json:"depth" default:"3"`
 	ConfFile           string          `json:"confFile" default:"./config.json"`
 	AllowedHeaderTypes map[string]bool `json:"allowedHeaderTypes"`
+	Tokens             []Token         `json:"tokens"`
 }
 
 var (
 	slogger             = logger.Logger()
-	default_config_path = "../config.json"
+	default_config_path = "./config.json"
 
 	AppConf = Config{
 		ConfFile: default_config_path,
@@ -78,6 +86,7 @@ func initChecks() (bool, error) {
 
 func (c *Config) updateFromFile() {
 
+	slogger.Debug("Updating configuration from file")
 	file, err := os.ReadFile(c.ConfFile)
 	if err != nil {
 		slogger.Error("No file: ", err)
@@ -87,6 +96,7 @@ func (c *Config) updateFromFile() {
 	if err != nil {
 		slogger.Error("Could not unmarshal the file", err)
 	}
+	slogger.Debug("updated config", slog.Any("config", c))
 
 }
 

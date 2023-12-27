@@ -11,9 +11,19 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func DownloadFile(c *fiber.Ctx) error {
+type downloadRequest struct {
+	Filename string `json:"filename"`
+}
 
-	return nil
+func DownloadFile(c *fiber.Ctx) error {
+	// Parse JSON request body
+	var request downloadRequest
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
+	}
+
+	// Use SendFile to send the specified file for download
+	return c.SendFile(request.Filename)
 }
 
 func DeleteFiles(c *fiber.Ctx) error {
@@ -31,6 +41,7 @@ func DeleteFiles(c *fiber.Ctx) error {
 		go func(filename string) {
 			err := helper.DeleteFile(filename)
 			if err != nil {
+				slog.Error("Failed to delete the file", slog.String("file", filename), slog.Any("err", err))
 				return
 			}
 		}(filename)
@@ -66,29 +77,31 @@ func ListFiles(c *fiber.Ctx) error {
 func SaveFile(c *fiber.Ctx) error {
 
 	// Parse the multipart form:
-	if form, err := c.MultipartForm(); err == nil {
+	form, err := c.MultipartForm()
+	if err != nil {
+		slog.Error("Error while getting files!", err)
+		return c.Status(fiber.StatusInternalServerError).SendString("Encountered an error while uploading files")
 
-		// Get all files from "documents" key:
-		files := form.File["receipt"]
-
-		// Loop through files:
-		for _, file := range files {
-			if _, ok := config.AppConf.AllowedHeaderTypes[file.Header["Content-Type"][0]]; !ok {
-				slog.Error("Bad Request")
-				continue
-			}
-			fmt.Println(file.Filename, file.Size, file.Header["Content-Type"][0])
-
-			// Save the files to disk:
-			if err := c.SaveFile(file, fmt.Sprintf("%s/%s", config.AppConf.Dir, file.Filename)); err != nil {
-				slog.Error("Couldn't save files!", err)
-				return c.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
-			}
-		}
-		return err
 	}
+	// Get all files from "documents" key:
+	files := form.File["receipt"]
 
+	// Loop through files:
+	for _, file := range files {
+		if _, ok := config.AppConf.AllowedHeaderTypes[file.Header["Content-Type"][0]]; !ok {
+			slog.Error("Bad Request")
+			continue
+		}
+		fmt.Println(file.Filename, file.Size, file.Header["Content-Type"][0])
+
+		// Save the files to disk:
+		if err := c.SaveFile(file, fmt.Sprintf("%s/%s", config.AppConf.Dir, file.Filename)); err != nil {
+			slog.Error("Couldn't save files!", err)
+			return c.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+		}
+	}
 	return c.JSON(fiber.Map{"message": "File uploaded successfully"})
+
 }
 
 func UpdateConfig(c *fiber.Ctx) error {

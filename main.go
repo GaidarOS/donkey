@@ -6,6 +6,7 @@ import (
 
 	"receipt_store/config"
 	"receipt_store/logger"
+	"receipt_store/middleware"
 	"receipt_store/routes"
 
 	"github.com/gofiber/fiber/v2"
@@ -33,6 +34,8 @@ func init() {
 func main() {
 	app := fiber.New(fiber.Config{
 		AppName: "Donkey",
+		// If run with the following param the list of routes will be printed in the log when starting the server
+		// EnablePrintRoutes: true,
 	})
 
 	app.Use(recover.New())
@@ -44,9 +47,15 @@ func main() {
 
 	// Route to handle file uploads
 	api_v1.Post("/upload", routes.SaveFile)
-	api_v1.Delete("/delete", routes.DeleteFiles)
+	api_v1.Delete("/delete", routes.DeleteFiles)	
 	api_v1.Post("/config", routes.UpdateConfig)
-	api_v1.Get("/list", routes.ListFiles)
+	api_v1.Get("/list", middleware.TokenMiddleware, routes.ListFiles)
+
+	admin_v1 := api_v1.Group("/admin")
+	admin_v1.Get("/", middleware.AdminMiddleware, routes.TokensList)
+	admin_v1.Post("/", middleware.AdminMiddleware, routes.TokenCreate)
+	admin_v1.Put("/", middleware.AdminMiddleware, routes.TokenEdit)
+	admin_v1.Delete("/", middleware.AdminMiddleware, routes.TokenDelete)
 
 	// Start server on port 3000
 	slog.Debug("Starting the web-server!")

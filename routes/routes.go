@@ -71,7 +71,6 @@ func ListFiles(c *fiber.Ctx) error {
 	}
 	// Return the list of file names
 	return c.JSON(fiber.Map{"files": fileNames})
-
 }
 
 func SaveFile(c *fiber.Ctx) error {
@@ -101,7 +100,6 @@ func SaveFile(c *fiber.Ctx) error {
 		}
 	}
 	return c.JSON(fiber.Map{"message": "File uploaded successfully"})
-
 }
 
 func UpdateConfig(c *fiber.Ctx) error {

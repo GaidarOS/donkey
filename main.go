@@ -33,7 +33,8 @@ func init() {
 
 func main() {
 	app := fiber.New(fiber.Config{
-		AppName: "Donkey",
+		AppName: "Donkey v0.5",
+
 		// If run with the following param the list of routes will be printed in the log when starting the server
 		// EnablePrintRoutes: true,
 	})

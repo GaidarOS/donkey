@@ -141,7 +141,7 @@ func addToWatcher(watcher *fsnotify.Watcher, filename string) {
 	}
 }
 
-func (c *Config) writeToConf() error {
+func (c *Config) WriteToConf() error {
 	// Marshal the struct to JSON
 	jsonData, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
@@ -153,4 +153,47 @@ func (c *Config) writeToConf() error {
 
 	slogger.Info("Config successfully saved to", slog.Any("filename", c.ConfFile))
 	return nil
+}
+
+func (c *Config) FindStructByToken(token string) (*Token, error) {
+	for _, item := range c.Tokens {
+		if item.Value == token {
+			return &item, nil
+		}
+	}
+	return nil, errors.New("no matching item found")
+}
+
+func (c *Config) FindStructByName(name string) (*Token, error) {
+	for _, item := range c.Tokens {
+		if item.UserName == name {
+			return &item, nil
+		}
+	}
+	return nil, errors.New("no matching item found")
+}
+
+func (c *Config) UpdateStructInToken(target, replacement Token) bool {
+	for i := range c.Tokens {
+		if c.Tokens[i].Value == target.Value {
+			c.Tokens[i] = replacement
+			return true
+		}
+	}
+	return false
+}
+
+func (c *Config) DeleteStructFromArray(target Token) error {
+	for i, s := range c.Tokens {
+		if s.Value == target.Value {
+			// Swap the element to be deleted with the last element
+			c.Tokens[i] = c.Tokens[len(c.Tokens)-1]
+
+			// Truncate the c.Tokens to remove the last element
+			c.Tokens = c.Tokens[:len(c.Tokens)-1]
+
+			return nil
+		}
+	}
+	return errors.New("couldn't find or delete the token")
 }

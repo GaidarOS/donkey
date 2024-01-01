@@ -18,7 +18,7 @@ func TestReadConfig(t *testing.T) {
 		ConfFile:           "../config-test.json",
 		AllowedHeaderTypes: map[string]bool{"image/vnd.djvu": true},
 	}
-	cfg.writeToConf()
+	cfg.WriteToConf()
 
 	cfg.updateFromFile()
 	testCases := map[string]struct {

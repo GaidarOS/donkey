@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// Token middleware
+// TokenMiddleware
 // Checks if the requester's token exists and if he has access to
 func TokenMiddleware(c *fiber.Ctx) error {
 
@@ -21,7 +21,16 @@ func TokenMiddleware(c *fiber.Ctx) error {
 			"suggestion": "Make sure you include the required header(\"Token\") and provide valid values",
 		})
 	}
-	result := findStructByToken(config.AppConf.Tokens, c.Get("Token"))
+
+	result, err := config.AppConf.FindStructByToken(c.Get("Token"))
+	if err != nil {
+		slog.Error("No token found", err)
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Unauthorized: No user found with that token",
+		}) 
+	}
+
 	slog.Debug("Found this user from token", slog.Any("config", result))
 
 	slog.Info("Request body", slog.String("body", string(c.Body())))
@@ -34,7 +43,16 @@ func AdminMiddleware(c *fiber.Ctx) error {
 
 	slog.Info("Verifying credentials!")
 	slog.Debug("Request headers", slog.Any("all-headers", c.GetReqHeaders()))
-	result := findStructByToken(config.AppConf.Tokens, c.Get("Token"))
+
+	result, err := config.AppConf.FindStructByToken(c.Get("Token"))
+	if err != nil {
+		slog.Error("No token found", err)
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Unauthorized: No user found with that token",
+		})
+	}
+
 	slog.Debug("Found this user from token", slog.Any("config", result))
 	if result == nil || !result.Admin {
 		slog.Error("A non-admin user requested access")
@@ -44,13 +62,4 @@ func AdminMiddleware(c *fiber.Ctx) error {
 		})
 	}
 	return c.Next()
-}
-
-func findStructByToken(array []config.Token, token string) *config.Token {
-	for _, item := range array {
-		if item.Value == token {
-			return &item
-		}
-	}
-	return nil
 }

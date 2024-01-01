@@ -11,21 +11,6 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-type Token struct {
-	AccessPaths []string `json:"access_paths"`
-	Admin       bool     `json:"admin"`
-	UserName    string   `json:"username"`
-	Value       string   `json:"value"`
-}
-
-type Config struct {
-	Dir                string          `json:"dir" default:"uploads"`
-	Port               string          `json:"port" default:"8080"`
-	Depth              string          `json:"depth" default:"3"`
-	ConfFile           string          `json:"confFile" default:"./config.json"`
-	AllowedHeaderTypes map[string]bool `json:"allowedHeaderTypes"`
-	Tokens             []Token         `json:"tokens"`
-}
 
 var (
 	slogger             = logger.Logger()
@@ -97,7 +82,6 @@ func (c *Config) updateFromFile() {
 		slogger.Error("Could not unmarshal the file", err)
 	}
 	slogger.Debug("updated config", slog.Any("config", c))
-
 }
 
 func (c *Config) watchConfig() {
@@ -132,13 +116,6 @@ func (c *Config) watchConfig() {
 			addToWatcher(wtchr, c.ConfFile)
 		}
 	}()
-
-}
-
-func addToWatcher(watcher *fsnotify.Watcher, filename string) {
-	if err := watcher.Add(filename); err != nil {
-		slogger.Error("Could not add file to the watcher", err)
-	}
 }
 
 func (c *Config) WriteToConf() error {
@@ -173,14 +150,14 @@ func (c *Config) FindStructByName(name string) (*Token, error) {
 	return nil, errors.New("no matching item found")
 }
 
-func (c *Config) UpdateStructInToken(target, replacement Token) bool {
+func (c *Config) UpdateStructInToken(target, replacement Token) error {
 	for i := range c.Tokens {
 		if c.Tokens[i].Value == target.Value {
 			c.Tokens[i] = replacement
-			return true
+			return nil
 		}
 	}
-	return false
+	return errors.New("no token found to update")
 }
 
 func (c *Config) DeleteStructFromArray(target Token) error {
@@ -196,4 +173,10 @@ func (c *Config) DeleteStructFromArray(target Token) error {
 		}
 	}
 	return errors.New("couldn't find or delete the token")
+}
+
+func addToWatcher(watcher *fsnotify.Watcher, filename string) {
+	if err := watcher.Add(filename); err != nil {
+		slogger.Error("Could not add file to the watcher", err)
+	}
 }

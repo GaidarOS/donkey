@@ -1,11 +1,10 @@
 package config
 
-
 type Token struct {
-	AccessPaths []string `json:"access_paths"`
-	Admin       bool     `json:"admin"`
-	UserName    string   `json:"username"`
-	Value       string   `json:"value"`
+	AccessPaths map[string]bool `json:"access_paths"`
+	Admin       bool            `json:"admin"`
+	UserName    string          `json:"username"`
+	Value       string          `json:"value"`
 }
 
 type Config struct {

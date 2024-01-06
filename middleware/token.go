@@ -31,11 +31,17 @@ func TokenMiddleware(c *fiber.Ctx) error {
 		}) 
 	}
 
+	if !(result.AccessPaths[c.Params("*")] || result.Admin) {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Unauthorized: No permissions to access this folder!",
+		}) 
+	}
+
 	slog.Debug("Found this user from token", slog.Any("config", result))
 
-	slog.Info("Request body", slog.String("body", string(c.Body())))
+	slog.Debug("Request body", slog.String("body", string(c.Body())))
 
-	slog.Info("Middleware executed before route handler")
 	return c.Next()
 }
 

@@ -44,19 +44,18 @@ func main() {
 	app.Use(slogfiber.New(slogger))
 
 	api_v1 := app.Group("/api/v1")
-	api_v1.Get("/download", routes.DownloadFile)
-
-	// Route to handle file uploads
-	api_v1.Post("/upload", routes.SaveFile)
-	api_v1.Delete("/delete", routes.DeleteFiles)	
-	api_v1.Post("/config", routes.UpdateConfig)
-	api_v1.Get("/list", middleware.TokenMiddleware, routes.ListFiles)
+	api_v1.Get("/download/*", middleware.TokenMiddleware, routes.DownloadFile)
+	api_v1.Get("/list/*", middleware.TokenMiddleware, routes.ListFiles)
+	api_v1.Post("/upload/*", middleware.TokenMiddleware, routes.SaveFile)
+	api_v1.Delete("/delete/*", middleware.TokenMiddleware, routes.DeleteFiles)
 
 	admin_v1 := api_v1.Group("/admin")
 	admin_v1.Get("/", middleware.AdminMiddleware, routes.TokensList)
 	admin_v1.Post("/", middleware.AdminMiddleware, routes.TokenCreate)
 	admin_v1.Put("/", middleware.AdminMiddleware, routes.TokenEdit)
 	admin_v1.Delete("/", middleware.AdminMiddleware, routes.TokenDelete)
+	admin_v1.Get("/config", middleware.AdminMiddleware, routes.GetConfig)
+	admin_v1.Post("/config", middleware.AdminMiddleware, routes.UpdateConfig)
 
 	// Start server on port 3000
 	slog.Debug("Starting the web-server!")

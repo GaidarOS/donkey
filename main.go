@@ -21,6 +21,15 @@ var (
 	slogger *slog.Logger
 )
 
+var ConfigDefault = Config{
+	Next:     nil,
+	BasePath: "/",
+	FilePath: "./swagger.json",
+	Path:     "docs",
+	Title:    "Fiber API documentation",
+	CacheAge: 3600, // Default to 1 hour
+}
+
 func init() {
 	// Load .env file
 
@@ -34,7 +43,7 @@ func init() {
 
 func main() {
 	app := fiber.New(fiber.Config{
-		AppName: "Donkey v0.5",
+		AppName: "Donkey v1.0.0",
 
 		// If run with the following param the list of routes will be printed in the log when starting the server
 		// EnablePrintRoutes: true,

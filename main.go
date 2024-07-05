@@ -11,14 +11,12 @@ import (
 
 	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/csrf"
-	"github.com/gofiber/fiber/v2/middleware/recover"
-
-	_ "github.com/joho/godotenv/autoload"
-
 	slogfiber "github.com/samber/slog-fiber"
+
+	"github.com/gofiber/fiber/v2/middleware/recover"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 var (

@@ -80,7 +80,7 @@ func (c *Config) updateFromFile() {
 	if err != nil {
 		slogger.Error("Could not unmarshal the file", err)
 	}
-	slogger.Debug("updated config", slog.Any("config", c))
+	slogger.Info("updated config", slog.Any("config", c))
 }
 
 func (c *Config) watchConfig() {

@@ -28,14 +28,14 @@ func TokenMiddleware(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Unauthorized: No user found with that token",
-		}) 
+		})
 	}
 
 	if !(result.AccessPaths[c.Params("*")] || result.Admin) {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Unauthorized: No permissions to access this folder!",
-		}) 
+		})
 	}
 
 	slog.Debug("Found this user from token", slog.Any("config", result))

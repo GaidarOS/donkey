@@ -50,10 +50,10 @@ func main() {
 	api_v1.Delete("/delete/*", middleware.TokenMiddleware, routes.DeleteFiles)
 
 	admin_v1 := api_v1.Group("/admin")
-	admin_v1.Get("/", middleware.AdminMiddleware, routes.TokensList)
-	admin_v1.Post("/", middleware.AdminMiddleware, routes.TokenCreate)
-	admin_v1.Put("/", middleware.AdminMiddleware, routes.TokenEdit)
-	admin_v1.Delete("/", middleware.AdminMiddleware, routes.TokenDelete)
+	admin_v1.Get("/token", middleware.AdminMiddleware, routes.TokensList)
+	admin_v1.Post("/token", middleware.AdminMiddleware, routes.TokenCreate)
+	admin_v1.Put("/token", middleware.AdminMiddleware, routes.TokenEdit)
+	admin_v1.Delete("/token", middleware.AdminMiddleware, routes.TokenDelete)
 	admin_v1.Get("/config", middleware.AdminMiddleware, routes.GetConfig)
 	admin_v1.Post("/config", middleware.AdminMiddleware, routes.UpdateConfig)
 

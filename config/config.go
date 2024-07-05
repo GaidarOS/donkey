@@ -11,7 +11,6 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-
 var (
 	slogger             = logger.Logger()
 	default_config_path = "./config.json"

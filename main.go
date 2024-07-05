@@ -11,7 +11,11 @@ import (
 
 	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+
 	_ "github.com/joho/godotenv/autoload"
 
 	slogfiber "github.com/samber/slog-fiber"
@@ -19,16 +23,15 @@ import (
 
 var (
 	slogger *slog.Logger
+	Config  = swagger.Config{
+		Next:     nil,
+		BasePath: "/",
+		FilePath: "./swagger.json",
+		Path:     "docs",
+		Title:    "Donkey API documentation",
+		CacheAge: 3600, // Default to 1 hour
+	}
 )
-
-var ConfigDefault = Config{
-	Next:     nil,
-	BasePath: "/",
-	FilePath: "./swagger.json",
-	Path:     "docs",
-	Title:    "Fiber API documentation",
-	CacheAge: 3600, // Default to 1 hour
-}
 
 func init() {
 	// Load .env file
@@ -48,8 +51,15 @@ func main() {
 		// If run with the following param the list of routes will be printed in the log when starting the server
 		// EnablePrintRoutes: true,
 	})
-	app.Use(swagger.New())
+
 	app.Use(recover.New())
+	app.Use(swagger.New(Config))
+	app.Use(csrf.New())
+	app.Use(compress.New())
+	// app.Use(cors.New(cors.Config{
+	// 	AllowOrigins: "https://gofiber.io, https://gofiber.net",
+	// 	AllowHeaders: "Origin, Content-Type, Accept",
+	// }))
 	// pass the custom logger through the fiber context
 	app.Use(slogfiber.New(slogger))
 
@@ -66,11 +76,11 @@ func main() {
 	admin_v1.Delete("/", middleware.AdminMiddleware, routes.TokenDelete)
 	admin_v1.Get("/config", middleware.AdminMiddleware, routes.GetConfig)
 	admin_v1.Post("/config", middleware.AdminMiddleware, routes.UpdateConfig)
-
 	// Start server on port 3000
 	slog.Debug("Starting the web-server!")
 	err := app.Listen(":" + config.AppConf.Port)
 	if err != nil {
 		slog.Error("Couldn't start the fiber server", err)
 	}
+
 }

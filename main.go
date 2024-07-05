@@ -9,7 +9,6 @@ import (
 	"receipt_store/middleware"
 	"receipt_store/routes"
 
-	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/csrf"
@@ -21,14 +20,6 @@ import (
 
 var (
 	slogger *slog.Logger
-	Config  = swagger.Config{
-		Next:     nil,
-		BasePath: "/",
-		FilePath: "./swagger.json",
-		Path:     "docs",
-		Title:    "Donkey API documentation",
-		CacheAge: 3600, // Default to 1 hour
-	}
 )
 
 func init() {
@@ -51,7 +42,6 @@ func main() {
 	})
 
 	app.Use(recover.New())
-	app.Use(swagger.New(Config))
 	app.Use(csrf.New())
 	app.Use(compress.New())
 	// app.Use(cors.New(cors.Config{

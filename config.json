@@ -3,6 +3,9 @@
   "port": "8080",
   "depth": "3",
   "confFile": "./config.json",
+  "allowedHeaderTypes": {
+    "image/vnd.djvu": true
+  },
   "Tokens": [
     {
       "access_paths": {

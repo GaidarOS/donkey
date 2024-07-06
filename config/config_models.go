@@ -1,10 +1,10 @@
 package config
 
-type Token struct {
+type User struct {
 	AccessPaths map[string]bool `json:"access_paths"`
 	Admin       bool            `json:"admin"`
 	UserName    string          `json:"username"`
-	Value       string          `json:"value"`
+	Password    string          `json:"Password"`
 }
 
 type Config struct {
@@ -13,5 +13,5 @@ type Config struct {
 	Depth              string          `json:"depth" default:"3"`
 	ConfFile           string          `json:"confFile" default:"./config.json"`
 	AllowedHeaderTypes map[string]bool `json:"allowedHeaderTypes"`
-	Tokens             []Token         `json:"tokens"`
+	Users              []User          `json:"users"`
 }

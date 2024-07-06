@@ -7,14 +7,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func TokensList(c *fiber.Ctx) error {
+func UsersList(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "List of user tokens",
-		"data": config.AppConf.Tokens})
+		"data": config.AppConf.Users})
 }
 
-func TokenCreate(c *fiber.Ctx) error {
+func UserCreate(c *fiber.Ctx) error {
 
-	tkn := config.Token{}
+	tkn := config.User{}
 	// Parse the body
 	if err := c.BodyParser(&tkn); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
@@ -22,7 +22,7 @@ func TokenCreate(c *fiber.Ctx) error {
 
 	// check if user or token already exist
 	// fail if either does
-	foundToken, err := config.AppConf.FindStructByToken(tkn.Value)
+	foundUser, err := config.AppConf.FindStructByUser(tkn.Password)
 	if err != nil {
 		slog.Debug("No matching token found", err)
 	}
@@ -30,25 +30,25 @@ func TokenCreate(c *fiber.Ctx) error {
 	if err != nil {
 		slog.Debug("No matching username found", err)
 	}
-	if foundName != nil || foundToken != nil {
+	if foundName != nil || foundUser != nil {
 		slog.Error("Found an existing username or token. Try updating instead.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Found an existing username or token. Try updating instead"})
 	}
 
 	// append the new token to the list
-	config.AppConf.Tokens = append(config.AppConf.Tokens, tkn)
+	config.AppConf.Users = append(config.AppConf.Users, tkn)
 
 	// write the new config to file for persisten storage
 	if err := config.AppConf.WriteToConf(); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error while trying to store the new config. Please try again later"})
 	}
 
-	return c.JSON(fiber.Map{"message": "Token created",
-		"data": config.AppConf.Tokens})
+	return c.JSON(fiber.Map{"message": "User created",
+		"data": config.AppConf.Users})
 }
 
-func TokenEdit(c *fiber.Ctx) error {
-	tkn := config.Token{}
+func UserEdit(c *fiber.Ctx) error {
+	tkn := config.User{}
 	// Parse the body
 	if err := c.BodyParser(&tkn); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
@@ -56,13 +56,13 @@ func TokenEdit(c *fiber.Ctx) error {
 
 	// check if user or token already exist
 	// fail if either does
-	foundToken, err := config.AppConf.FindStructByToken(tkn.Value)
+	foundUser, err := config.AppConf.FindStructByUser(tkn.Password)
 	if err != nil {
 		slog.Debug("No matching token found", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Couldn't find a token with that value. Are you sure it exists?"})
 	}
 
-	config.AppConf.UpdateStructInToken(*foundToken, tkn)
+	config.AppConf.UpdateStructInUser(*foundUser, tkn)
 
 	// write the new config to file for persisten storage
 	if err := config.AppConf.WriteToConf(); err != nil {
@@ -72,9 +72,9 @@ func TokenEdit(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "token updated", "data": ""})
 }
 
-func TokenDelete(c *fiber.Ctx) error {
+func UserDelete(c *fiber.Ctx) error {
 
-	tkn := config.Token{}
+	tkn := config.User{}
 	// Parse the body
 	if err := c.BodyParser(&tkn); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
@@ -82,7 +82,7 @@ func TokenDelete(c *fiber.Ctx) error {
 
 	// check if user or token already exist
 	// fail if either does
-	_, err := config.AppConf.FindStructByToken(tkn.Value)
+	_, err := config.AppConf.FindStructByUser(tkn.Password)
 	if err != nil {
 		slog.Debug("No matching token found", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Couldn't find a token with that value. Are you sure it exists?"})

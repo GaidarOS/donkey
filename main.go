@@ -10,6 +10,7 @@ import (
 	"receipt_store/routes"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/basicauth"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/csrf"
 	slogfiber "github.com/samber/slog-fiber"
@@ -40,6 +41,28 @@ func main() {
 		// If run with the following param the list of routes will be printed in the log when starting the server
 		// EnablePrintRoutes: true,
 	})
+
+	users := GetUsersAndPasswordsFromConfig(config.AppConf.Tokens)
+	//authentication
+	app.Use(basicauth.New(basicauth.Config{
+		Users: map[string]string{
+			"john":  "doe",
+			"admin": "123456",
+		},
+		Realm: "Forbidden",
+		Authorizer: func(user, pass string) bool {
+			if user == "john" && pass == "doe" {
+				return true
+			}
+			if user == "admin" && pass == "123456" {
+				return true
+			}
+			return false
+		},
+		Unauthorized: func(c fiber.Ctx) error {
+			return c.SendFile("./unauthorized.html")
+		},
+	}))
 
 	app.Use(recover.New())
 	app.Use(csrf.New())

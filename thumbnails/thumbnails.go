@@ -20,14 +20,14 @@ func GenerateThumbnailFromImage(filepath string, savefoldername string) error {
 	defer image_file.Close()
 
 	filetype := strings.Split(path.Base(filepath), ".")[1]
-
+	var my_image image.Image
 	switch filetype {
 	case "jpeg":
-		my_image, err := jpeg.Decode(image_file)
+		my_image, err = jpeg.Decode(image_file)
 	case "jpg":
-		my_image, err := jpeg.Decode(image_file)
+		my_image, err = jpeg.Decode(image_file)
 	case "png":
-		my_image, err := jpeg.Decode(image_file)
+		my_image, err = jpeg.Decode(image_file)
 	}
 
 	if err != nil {

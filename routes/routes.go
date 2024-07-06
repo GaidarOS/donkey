@@ -127,27 +127,16 @@ func SaveFile(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Filed to save file"})
 		}
 		if strings.Contains(file.Filename, ".pdf") {
-			doc := pdf.NewPDFDoc(save_path)
-			doc.SetDPI(92)
-			pg := doc.GetPage(1)
-			doc.Export(pg, path.Join(config.AppConf.Dir, "thumbnails", strings.Replace(file.Filename, ".pdf", ".png", 1)), "PNG")
+			err = thumb.GenerateThumbnailFromImage(save_path, "thumbnails")
+			if err != nil {
+				slog.Error("Couldn't create thumbnail!", err)
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Filed to create thumbnail"})
+			}
 		} else {
-			conf := thumb.GetThumbConfig()
-			conf.DestinationPath = path.Join(config.AppConf.Dir, "thumbnails", file.Filename)
-			gen := thumb.NewGenerator(conf)
-			image, err := gen.NewImageFromFile(save_path)
+			err = thumb.GenerateThumbnailFromPdf(save_path, "thumbnails")
 			if err != nil {
-				slog.Error("Couldn't load file!", err)
-				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Filed to save thumbnail"})
-			}
-			thumbnail, err := gen.CreateThumbnail(image)
-			if err != nil {
-				slog.Error("Couldn't load file!", err)
-				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Filed to save thumbnail"})
-			}
-			if err := os.WriteFile(conf.DestinationPath, thumbnail, 0644); err != nil {
-				slog.Error("Couldn't save thumbnails!", err)
-				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Filed to save thumbnail"})
+				slog.Error("Couldn't create thumbnail from pdf!", err)
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Filed to create thumbnail from pdf"})
 			}
 		}
 	}

@@ -3,12 +3,13 @@ package thumbnails
 import (
 	"image"
 	"image/jpeg"
+	"image/png"
 	"os"
 	"path"
 	"receipt_store/config"
 	"strings"
 
-	"github.com/gen2brain/go-fitz"
+	fitz "github.com/gen2brain/go-fitz"
 )
 
 func GenerateThumbnailFromImage(filepath string, savefoldername string) error {
@@ -27,7 +28,7 @@ func GenerateThumbnailFromImage(filepath string, savefoldername string) error {
 	case "jpg":
 		my_image, err = jpeg.Decode(image_file)
 	case "png":
-		my_image, err = jpeg.Decode(image_file)
+		my_image, err = png.Decode(image_file)
 	}
 
 	if err != nil {

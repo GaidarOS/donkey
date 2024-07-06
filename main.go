@@ -42,26 +42,10 @@ func main() {
 		// EnablePrintRoutes: true,
 	})
 
-	users := GetUsersAndPasswordsFromConfig(config.AppConf.Tokens)
-	//authentication
+	//middleware
+	users := config.GetUsersAndPasswordsFromConfig(config.AppConf.Users)
 	app.Use(basicauth.New(basicauth.Config{
-		Users: map[string]string{
-			"john":  "doe",
-			"admin": "123456",
-		},
-		Realm: "Forbidden",
-		Authorizer: func(user, pass string) bool {
-			if user == "john" && pass == "doe" {
-				return true
-			}
-			if user == "admin" && pass == "123456" {
-				return true
-			}
-			return false
-		},
-		Unauthorized: func(c fiber.Ctx) error {
-			return c.SendFile("./unauthorized.html")
-		},
+		Users: users,
 	}))
 
 	app.Use(recover.New())
@@ -81,10 +65,10 @@ func main() {
 	api_v1.Delete("/delete/*", middleware.TokenMiddleware, routes.DeleteFiles)
 
 	admin_v1 := api_v1.Group("/admin")
-	admin_v1.Get("/", middleware.AdminMiddleware, routes.TokensList)
-	admin_v1.Post("/", middleware.AdminMiddleware, routes.TokenCreate)
-	admin_v1.Put("/", middleware.AdminMiddleware, routes.TokenEdit)
-	admin_v1.Delete("/", middleware.AdminMiddleware, routes.TokenDelete)
+	admin_v1.Get("/", middleware.AdminMiddleware, routes.UsersList)
+	admin_v1.Post("/", middleware.AdminMiddleware, routes.UserCreate)
+	admin_v1.Put("/", middleware.AdminMiddleware, routes.UserEdit)
+	admin_v1.Delete("/", middleware.AdminMiddleware, routes.UserDelete)
 	admin_v1.Get("/config", middleware.AdminMiddleware, routes.GetConfig)
 	admin_v1.Post("/config", middleware.AdminMiddleware, routes.UpdateConfig)
 	// Start server on port 3000

@@ -1,8 +1,0 @@
-GET http://localhost:8080/api/v1/list/ HTTP/1.1
-Token: admin
-
-
-###
-
-GET http://localhost:8080/swagger HTTP/1.1
-Token: admin

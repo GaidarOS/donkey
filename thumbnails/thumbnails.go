@@ -9,7 +9,7 @@ import (
 	"receipt_store/config"
 	"strings"
 
-	fitz "github.com/gen2brain/go-fitz"
+	"github.com/gen2brain/go-fitz"
 )
 
 func GenerateThumbnailFromImage(filepath string, savefoldername string) error {

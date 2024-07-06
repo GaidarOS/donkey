@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-
+	path "path"
 	"receipt_store/config"
 	"receipt_store/helper"
+	thumb "receipt_store/thumbnails"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -23,9 +25,12 @@ func DownloadFile(c *fiber.Ctx) error {
 		slog.Error("Error parsing the filename", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
 	}
-
-	// Use SendFile to send the specified file for download
-	return c.SendFile(fmt.Sprintf("%s/%s/%s", config.AppConf.Dir, c.Params("*"), request.Filename))
+	if c.Params("thumbnail") == "true" {
+		return c.SendFile(path.Join(config.AppConf.Dir, "thumbnails", request.Filename))
+	} else {
+		// Use SendFile to send the specified file for download
+		return c.SendFile(path.Join(config.AppConf.Dir, c.Params("*"), request.Filename))
+	}
 }
 
 func DeleteFiles(c *fiber.Ctx) error {
@@ -46,7 +51,22 @@ func DeleteFiles(c *fiber.Ctx) error {
 				slog.Error("Failed to delete the file", slog.String("file", filename), slog.Any("err", err))
 				return
 			}
-		}(fmt.Sprintf("%s/%s/%s", config.AppConf.Dir, c.Params("*"), filename))
+			thumb_path := path.Join(config.AppConf.Dir, "thumbnails", path.Base(filename))
+			if strings.Contains(filename, ".pdf") {
+				thumb_filename := strings.Replace(thumb_path, ".pdf", ".png", 1)
+				err := helper.DeleteFile(thumb_filename)
+				if err != nil {
+					slog.Error("Failed to delete the thumbnail pdf", slog.String("file", filename), slog.Any("err", err))
+					return
+				}
+			} else {
+				err := helper.DeleteFile(thumb_path)
+				if err != nil {
+					slog.Error("Failed to delete the thumbnail", slog.String("file", filename), slog.Any("err", err))
+					return
+				}
+			}
+		}(path.Join(config.AppConf.Dir, c.Params("*"), filename))
 	}
 
 	return c.JSON(fiber.Map{"message": "Files deleted successfully"})
@@ -56,7 +76,7 @@ func DeleteFiles(c *fiber.Ctx) error {
 func ListFiles(c *fiber.Ctx) error {
 
 	// Read all files in the directory
-	files, err := os.ReadDir(fmt.Sprintf("%s/%s", config.AppConf.Dir, c.Params("*")))
+	files, err := os.ReadDir(path.Join(config.AppConf.Dir, c.Params("*")))
 	if err != nil {
 		slog.Error("Couldn't read directory. Does it exist?", err)
 		// error out if the directory doesn't exist
@@ -77,7 +97,7 @@ func ListFiles(c *fiber.Ctx) error {
 		fileNames = append(fileNames, file.Name())
 	}
 	// Return the list of file names
-	return c.JSON(fiber.Map{"files": fileNames, "folders": folderNames, "path": fmt.Sprintf("%s/%s", config.AppConf.Dir, c.Params("*"))})
+	return c.JSON(fiber.Map{"files": fileNames, "folders": folderNames, "path": path.Join(config.AppConf.Dir, c.Params("*"))})
 }
 
 func SaveFile(c *fiber.Ctx) error {
@@ -90,7 +110,7 @@ func SaveFile(c *fiber.Ctx) error {
 
 	}
 	// Get all files from "documents" key:
-	files := form.File["receipt"]
+	files := form.File["file"]
 
 	// Loop through files:
 	for _, file := range files {
@@ -101,9 +121,34 @@ func SaveFile(c *fiber.Ctx) error {
 		fmt.Println(file.Filename, file.Size, file.Header["Content-Type"][0])
 
 		// Save the files to disk:
-		if err := c.SaveFile(file, fmt.Sprintf("%s/%s/%s", config.AppConf.Dir, c.Params("*"), file.Filename)); err != nil {
+		save_path := path.Join(config.AppConf.Dir, c.Params("*"), file.Filename)
+		if err := c.SaveFile(file, save_path); err != nil {
 			slog.Error("Couldn't save files!", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Internal Server Error"})
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Filed to save file"})
+		}
+		if strings.Contains(file.Filename, ".pdf") {
+			doc := pdf.NewPDFDoc(save_path)
+			doc.SetDPI(92)
+			pg := doc.GetPage(1)
+			doc.Export(pg, path.Join(config.AppConf.Dir, "thumbnails", strings.Replace(file.Filename, ".pdf", ".png", 1)), "PNG")
+		} else {
+			conf := thumb.GetThumbConfig()
+			conf.DestinationPath = path.Join(config.AppConf.Dir, "thumbnails", file.Filename)
+			gen := thumb.NewGenerator(conf)
+			image, err := gen.NewImageFromFile(save_path)
+			if err != nil {
+				slog.Error("Couldn't load file!", err)
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Filed to save thumbnail"})
+			}
+			thumbnail, err := gen.CreateThumbnail(image)
+			if err != nil {
+				slog.Error("Couldn't load file!", err)
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Filed to save thumbnail"})
+			}
+			if err := os.WriteFile(conf.DestinationPath, thumbnail, 0644); err != nil {
+				slog.Error("Couldn't save thumbnails!", err)
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Filed to save thumbnail"})
+			}
 		}
 	}
 	return c.JSON(fiber.Map{"message": "File uploaded successfully"})
@@ -119,7 +164,7 @@ func UpdateConfig(c *fiber.Ctx) error {
 	}
 	rq, _ := json.Marshal(conf)
 	if err := helper.WriteToFile(config.AppConf.ConfFile, rq); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Internal Server Error"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Failed to update config"})
 	}
 	return c.JSON(fiber.Map{"message": "Configuration updated successfully"})
 }

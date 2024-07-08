@@ -4,7 +4,7 @@ type User struct {
 	AccessPaths map[string]bool `json:"access_paths"`
 	Admin       bool            `json:"admin"`
 	UserName    string          `json:"username"`
-	Password    string          `json:"Password"`
+	Password    string          `json:"password"`
 }
 
 type Config struct {

@@ -18,6 +18,10 @@ type downloadRequest struct {
 	Filename string `json:"filename"`
 }
 
+func Login(c *fiber.Ctx) error {
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Authenticated"})
+}
+
 func DownloadFile(c *fiber.Ctx) error {
 	// Parse JSON request body
 	var request downloadRequest

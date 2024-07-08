@@ -179,13 +179,3 @@ func addToWatcher(watcher *fsnotify.Watcher, filename string) {
 		slogger.Error("Could not add file to the watcher", err)
 	}
 }
-
-func GetUsersAndPasswordsFromConfig(accounts []User) map[string]string {
-
-	accountsMap := make(map[string]string)
-
-	for _, account := range accounts {
-		accountsMap[account.UserName] = account.Password
-	}
-	return accountsMap
-}

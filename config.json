@@ -6,15 +6,14 @@
   "allowedHeaderTypes": {
     "image/vnd.djvu": true
   },
-  "Tokens": [
+  "users": [
     {
       "access_paths": {
         "banana": true
       },
       "admin": true,
       "username": "admin",
-      "path": "banana",
-      "value": "admin"
+      "password": "admin"
     }
   ]
 }

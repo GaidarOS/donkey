@@ -12,7 +12,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
 	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/gofiber/fiber/v2/middleware/csrf"
 	slogfiber "github.com/samber/slog-fiber"
 
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -31,6 +30,10 @@ func init() {
 		slog.Error("Couldn't create the directory", err)
 	}
 
+	// Make sure that the base directory exists
+	if err := os.MkdirAll(config.AppConf.Dir+"/thumbnails", os.ModePerm); err != nil {
+		slog.Error("Couldn't create thumbnails directory", err)
+	}
 	slogger = logger.Logger()
 }
 
@@ -42,14 +45,8 @@ func main() {
 		// EnablePrintRoutes: true,
 	})
 
-	//middleware
-	users := config.GetUsersAndPasswordsFromConfig(config.AppConf.Users)
-	app.Use(basicauth.New(basicauth.Config{
-		Users: users,
-	}))
-
 	app.Use(recover.New())
-	app.Use(csrf.New())
+	// app.Use(csrf.New())
 	app.Use(compress.New())
 	// app.Use(cors.New(cors.Config{
 	// 	AllowOrigins: "https://gofiber.io, https://gofiber.net",
@@ -63,6 +60,15 @@ func main() {
 	api_v1.Get("/list/*", middleware.TokenMiddleware, routes.ListFiles)
 	api_v1.Post("/upload/*", middleware.TokenMiddleware, routes.SaveFile)
 	api_v1.Delete("/delete/*", middleware.TokenMiddleware, routes.DeleteFiles)
+	api_v1.Post("/login", basicauth.New(basicauth.Config{
+		Authorizer: func(username string, password string) bool {
+			user, err := config.AppConf.FindStructByName(username)
+			if err != nil {
+				return false
+			}
+			return user.Password == password
+		},
+	}), routes.Login)
 
 	admin_v1 := api_v1.Group("/admin")
 	admin_v1.Get("/", middleware.AdminMiddleware, routes.UsersList)
@@ -77,5 +83,4 @@ func main() {
 	if err != nil {
 		slog.Error("Couldn't start the fiber server", err)
 	}
-
 }

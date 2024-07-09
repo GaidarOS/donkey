@@ -22,6 +22,20 @@ func Login(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Authenticated"})
 }
 
+func GetUser(c *fiber.Ctx) error {
+	username := c.Params("*")
+	user, err := config.AppConf.FindStructByName(username)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
+	}
+	if user.Password != c.Get("Token") {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid request"})
+	}
+	user.Password = "obstucted"
+	return c.JSON(fiber.Map{"message": "Getting user",
+		"data": user})
+}
+
 func DownloadFile(c *fiber.Ctx) error {
 	// Parse JSON request body
 	var request downloadRequest

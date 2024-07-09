@@ -1,2 +1,7 @@
 POST http://localhost:8080/api/v1/login HTTP/1.1
 Authorization:	Basic dGVzdDp0ZXN0
+
+
+###
+GET http://localhost:8080/api/v1/list/banana HTTP/1.1
+Token: admin

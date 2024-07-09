@@ -56,10 +56,6 @@ func main() {
 	app.Use(slogfiber.New(slogger))
 
 	api_v1 := app.Group("/api/v1")
-	api_v1.Get("/download/*", middleware.TokenMiddleware, routes.DownloadFile)
-	api_v1.Get("/list/*", middleware.TokenMiddleware, routes.ListFiles)
-	api_v1.Post("/upload/*", middleware.TokenMiddleware, routes.SaveFile)
-	api_v1.Delete("/delete/*", middleware.TokenMiddleware, routes.DeleteFiles)
 	api_v1.Post("/login", basicauth.New(basicauth.Config{
 		Authorizer: func(username string, password string) bool {
 			user, err := config.AppConf.FindStructByName(username)
@@ -69,6 +65,11 @@ func main() {
 			return user.Password == password
 		},
 	}), routes.Login)
+	api_v1.Get("/download/*", middleware.TokenMiddleware, routes.DownloadFile)
+	api_v1.Get("/list/*", middleware.TokenMiddleware, routes.ListFiles)
+	api_v1.Post("/upload/*", middleware.TokenMiddleware, routes.SaveFile)
+	api_v1.Delete("/delete/*", middleware.TokenMiddleware, routes.DeleteFiles)
+	api_v1.Get("/user/*", middleware.TokenMiddleware, routes.GetUser)
 
 	admin_v1 := api_v1.Group("/admin")
 	admin_v1.Get("/", middleware.AdminMiddleware, routes.UsersList)

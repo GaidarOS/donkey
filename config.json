@@ -4,15 +4,23 @@
   "depth": "3",
   "confFile": "./config.json",
   "allowedHeaderTypes": {
-    "image/vnd.djvu": true
+    "image/gif": true,
+    "image/jpeg": true,
+    "image/png": true,
+    "image/tiff": true,
+    "image/x-icon": true,
+    "image/vnd.djvu": true,
+    "image/svg+xml": true,
+    "image/jpg": true,
+    "application/pdf": true
   },
   "users": [
     {
       "access_paths": {
         "banana": true,
-        "kiwi": false
+        "apple": false
       },
-      "admin": true,
+      "admin": false,
       "username": "admin",
       "password": "admin"
     }

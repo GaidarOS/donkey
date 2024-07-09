@@ -55,12 +55,12 @@ func GenerateThumbnailFromPdf(filepath string, savefoldername string) error {
 
 	defer doc.Close()
 
-	img,err := doc.Image(0)
+	img, err := doc.Image(0)
 	if err != nil {
 		return err
 	}
 
-	f, err := os.Create(path.Join(config.AppConf.Dir, savefoldername, strings.Replace(path.Base(filepath), ".pdf", ".png", 1)))
+	f, err := os.Create(path.Join(config.AppConf.Dir, savefoldername, strings.Replace(path.Base(filepath), ".pdf", ".jpg", 1)))
 	if err != nil {
 		return err
 	}

@@ -38,16 +38,16 @@ func GetUser(c *fiber.Ctx) error {
 
 func DownloadFile(c *fiber.Ctx) error {
 	// Parse JSON request body
-	var request downloadRequest
-	if err := c.BodyParser(&request); err != nil {
-		slog.Error("Error parsing the filename", err)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
+	param := c.Params("*")
+	possible_thumbnails := ""
+	if len(strings.Split(param, "/")) > 0 {
+		possible_thumbnails = strings.Split(param, "/")[0]
 	}
-	if c.Params("thumbnail") == "true" {
-		return c.SendFile(path.Join(config.AppConf.Dir, "thumbnails", request.Filename))
+	if possible_thumbnails == "thumbnails" {
+		return c.SendFile(path.Join(config.AppConf.Dir, "thumbnails", path.Base(param)))
 	} else {
 		// Use SendFile to send the specified file for download
-		return c.SendFile(path.Join(config.AppConf.Dir, c.Params("*"), request.Filename))
+		return c.SendFile(path.Join(config.AppConf.Dir, c.Params("*")))
 	}
 }
 
@@ -107,15 +107,22 @@ func ListFiles(c *fiber.Ctx) error {
 	// Make a list of all the file names
 	var fileNames []string
 	var folderNames []string
+	var thumbnails []string
+	//TODO: this probably needs to become recursive to handle files in subfolders
 	for _, file := range files {
 		if file.IsDir() {
 			folderNames = append(folderNames, file.Name())
 			continue
 		}
-		fileNames = append(fileNames, file.Name())
+		fileNames = append(fileNames, path.Join(c.Params("*"), file.Name()))
+		thumbname := file.Name()
+		if strings.Contains(file.Name(), ".pdf") {
+			thumbname = strings.Replace(file.Name(), ".pdf", ".jpg", 1)
+		}
+		thumbnails = append(thumbnails, path.Join("thumbnails", thumbname))
 	}
 	// Return the list of file names
-	return c.JSON(fiber.Map{"files": fileNames, "folders": folderNames, "path": path.Join(config.AppConf.Dir, c.Params("*"))})
+	return c.JSON(fiber.Map{"files": fileNames, "folders": folderNames, "thumbnails": thumbnails, "path": path.Join(config.AppConf.Dir, c.Params("*"))})
 }
 
 func SaveFile(c *fiber.Ctx) error {

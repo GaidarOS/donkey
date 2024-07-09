@@ -5,3 +5,16 @@ Authorization:	Basic dGVzdDp0ZXN0
 ###
 GET http://localhost:8080/api/v1/list/banana HTTP/1.1
 Token: admin
+
+
+###
+GET http://localhost:8080/api/v1/list/banana?token=admin HTTP/1.1
+Token: admin
+
+###
+GET http://localhost:8080/api/v1/download/banana/mages.PNG HTTP/1.1
+Token: admin
+
+###
+GET http://localhost:8080/api/v1/download/thumbnails/IMG_20210429_183514.jpg HTTP/1.1
+Token: admin

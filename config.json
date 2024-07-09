@@ -18,7 +18,8 @@
     {
       "access_paths": {
         "banana": true,
-        "apple": false
+        "kiwi": false,
+        "apple": true
       },
       "admin": false,
       "username": "admin",

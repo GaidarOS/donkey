@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os"
@@ -71,7 +70,7 @@ func DeleteFiles(c *fiber.Ctx) error {
 			}
 			thumb_path := path.Join(config.AppConf.Dir, "thumbnails", path.Base(filename))
 			if strings.Contains(filename, ".pdf") {
-				thumb_filename := strings.Replace(thumb_path, ".pdf", ".png", 1)
+				thumb_filename := strings.Replace(thumb_path, ".pdf", ".jpg", 1)
 				err := helper.DeleteFile(thumb_filename)
 				if err != nil {
 					slog.Error("Failed to delete the thumbnail pdf", slog.String("file", filename), slog.Any("err", err))
@@ -166,24 +165,4 @@ func SaveFile(c *fiber.Ctx) error {
 		}
 	}
 	return c.JSON(fiber.Map{"message": "File uploaded successfully"})
-}
-
-func UpdateConfig(c *fiber.Ctx) error {
-
-	var conf config.Config
-
-	// Parse the body
-	if err := c.BodyParser(&conf); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Invalid request"})
-	}
-	rq, _ := json.Marshal(conf)
-	if err := helper.WriteToFile(config.AppConf.ConfFile, rq); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Failed to update config"})
-	}
-	return c.JSON(fiber.Map{"message": "Configuration updated successfully"})
-}
-
-func GetConfig(c *fiber.Ctx) error {
-
-	return c.JSON(config.AppConf)
 }

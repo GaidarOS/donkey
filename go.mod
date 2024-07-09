@@ -7,7 +7,7 @@ require (
 	github.com/gen2brain/go-fitz v1.23.7
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/joho/godotenv v1.5.1
-	github.com/samber/slog-fiber v1.15.4
+	github.com/samber/slog-fiber v1.16.0
 	github.com/stretchr/testify v1.9.0
 )
 

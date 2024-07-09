@@ -44,6 +44,8 @@ github.com/rogpeppe/go-internal v1.11.0 h1:cWPaGQEPrBb5/AsnsZesgZZ9yb1OQ+GOISoDN
 github.com/rogpeppe/go-internal v1.11.0/go.mod h1:ddIwULY96R17DhadqLgMfk9H9tvdUzkipdSkR5nkCZA=
 github.com/samber/slog-fiber v1.15.4 h1:7pGGrGZHRRAmkZfyeLx1Zpyv4kh5UBjAD+ujxC2kQGQ=
 github.com/samber/slog-fiber v1.15.4/go.mod h1:IknWgunCflY+A1af7zXqsCfBshbRGqc+ayNSVM4htY0=
+github.com/samber/slog-fiber v1.16.0 h1:7HUfFC1c4OhoU9pGhrUyIX+BK+4OVPJduuQiWM6fzzU=
+github.com/samber/slog-fiber v1.16.0/go.mod h1:RQr46XiBUwVNgWTiAizSGBxV9IbOpGbMMEEsth05iXg=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/tinylib/msgp v1.2.0 h1:0uKB/662twsVBpYUPbokj4sTSKhWFKB7LopO2kWK8lY=

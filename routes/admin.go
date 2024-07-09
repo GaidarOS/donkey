@@ -1,8 +1,10 @@
 package routes
 
 import (
+	"encoding/json"
 	"log/slog"
 	"receipt_store/config"
+	"receipt_store/helper"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -99,4 +101,24 @@ func UserDelete(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{"message": "token deleted"})
+}
+
+func UpdateConfig(c *fiber.Ctx) error {
+
+	var conf config.Config
+
+	// Parse the body
+	if err := c.BodyParser(&conf); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Invalid request"})
+	}
+	rq, _ := json.Marshal(conf)
+	if err := helper.WriteToFile(config.AppConf.ConfFile, rq); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Failed to update config"})
+	}
+	return c.JSON(fiber.Map{"message": "Configuration updated successfully"})
+}
+
+func GetConfig(c *fiber.Ctx) error {
+
+	return c.JSON(config.AppConf)
 }

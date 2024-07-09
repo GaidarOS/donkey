@@ -50,7 +50,7 @@ func main() {
 	// app.Use(csrf.New())
 	app.Use(compress.New())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "https://gofiber.io, http://localhost:5173",
+		AllowOrigins:     "https://gofiber.io, http://127.0.0.1:5173/",
 		AllowHeaders:     "Origin, Content-Type, Accept, Token, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization",
 		AllowCredentials: true,
 		AllowMethods:     "GET, HEAD, PUT, PATCH, POST, DELETE",

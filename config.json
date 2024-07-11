@@ -27,9 +27,9 @@
     },
     {
       "access_paths": {
-        "food": true,
-        "transportation": true,
-        "other": true
+        "banana_food": true,
+        "banana_transportation": true,
+        "banana_other": true
       },
       "admin": false,
       "username": "banana",

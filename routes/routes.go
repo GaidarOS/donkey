@@ -151,7 +151,7 @@ func SaveFile(c *fiber.Ctx) error {
 			slog.Error("Couldn't save files!", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Failed to save file"})
 		}
-		if strings.Contains(file.Filename, ".pdf") {
+		if !strings.Contains(file.Filename, ".pdf") {
 			err = thumb.GenerateThumbnailFromImage(save_path, "thumbnails")
 			if err != nil {
 				slog.Error("Couldn't create thumbnail!", err)

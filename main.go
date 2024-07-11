@@ -3,11 +3,13 @@ package main
 import (
 	"log/slog"
 	"os"
-
+	"path"
 	"receipt_store/config"
 	"receipt_store/logger"
 	"receipt_store/middleware"
 	"receipt_store/routes"
+
+	maps "golang.org/x/exp/maps"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
@@ -31,16 +33,27 @@ func init() {
 	}
 
 	// Make sure that the base directory exists
-	if err := os.MkdirAll(config.AppConf.Dir+"/thumbnails", os.ModePerm); err != nil {
+	if err := os.MkdirAll(path.Join(config.AppConf.Dir, "thumbnails"), os.ModePerm); err != nil {
 		slog.Error("Couldn't create thumbnails directory", err)
 	}
+
+	for _, user := range config.AppConf.Users {
+		for _, folder := range maps.Keys(user.AccessPaths) {
+			slog.Info("Creting user folder " + folder + " if it doesn't exist")
+			if err := os.MkdirAll(path.Join(config.AppConf.Dir, folder), os.ModePerm); err != nil {
+				slog.Error("Couldn't create thumbnails directory", err)
+			}
+		}
+	}
+
 	slogger = logger.Logger()
 }
 
 func main() {
 	app := fiber.New(fiber.Config{
-		AppName: "Donkey v1.0.0",
-
+		AppName:   "Donkey v1.0.0",
+		BodyLimit: 50 * 1024 * 1024,
+		// StreamRequestBody:            true,
 		// If run with the following param the list of routes will be printed in the log when starting the server
 		// EnablePrintRoutes: true,
 	})

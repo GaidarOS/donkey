@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/gen2brain/go-fitz"
+	"github.com/nfnt/resize"
 )
 
 func GenerateThumbnailFromImage(filepath string, savefoldername string) error {
@@ -35,15 +36,14 @@ func GenerateThumbnailFromImage(filepath string, savefoldername string) error {
 		return err
 	}
 
-	my_sub_image := my_image.(interface {
-		SubImage(r image.Rectangle) image.Image
-	}).SubImage(image.Rect(0, 0, 150, 150))
+	newImage := resize.Resize(150, 150, my_image, resize.Lanczos3)
 
-	output_file, outputErr := os.Create("output.jpeg")
+	output_file, outputErr := os.Create(path.Join(config.AppConf.Dir, savefoldername, path.Base(filepath)))
 	if outputErr != nil {
 		return outputErr
 	}
-	jpeg.Encode(output_file, my_sub_image, &jpeg.Options{Quality: jpeg.DefaultQuality})
+	jpeg.Encode(output_file, newImage, &jpeg.Options{Quality: jpeg.DefaultQuality})
+	defer output_file.Close()
 	return nil
 }
 
@@ -65,15 +65,13 @@ func GenerateThumbnailFromPdf(filepath string, savefoldername string) error {
 		return err
 	}
 
-	my_sub_image := img.(interface {
-		SubImage(r image.Rectangle) image.Image
-	}).SubImage(image.Rect(0, 0, 150, 150))
+	newImage := resize.Resize(150, 150, img, resize.Lanczos3)
 
-	err = jpeg.Encode(f, my_sub_image, &jpeg.Options{Quality: jpeg.DefaultQuality})
+	err = jpeg.Encode(f, newImage, &jpeg.Options{Quality: jpeg.DefaultQuality})
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 
-	f.Close()
 	return nil
 }

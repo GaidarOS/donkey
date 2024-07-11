@@ -24,6 +24,16 @@
       "admin": false,
       "username": "admin",
       "password": "admin"
+    },
+    {
+      "access_paths": {
+        "food": true,
+        "transportation": true,
+        "other": true
+      },
+      "admin": false,
+      "username": "banana",
+      "password": "banana"
     }
   ]
 }

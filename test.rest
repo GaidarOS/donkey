@@ -18,3 +18,8 @@ Token: admin
 ###
 GET http://localhost:8080/api/v1/download/thumbnails/IMG_20210429_183514.jpg HTTP/1.1
 Token: admin
+
+
+###
+POST http://localhost:8080/api/v1/index/banana HTTP/1.1
+Token: admin

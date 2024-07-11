@@ -83,7 +83,7 @@ func main() {
 	admin_v1.Delete("/", middleware.AdminMiddleware, routes.UserDelete)
 	admin_v1.Get("/config", middleware.AdminMiddleware, routes.GetConfig)
 	admin_v1.Post("/config", middleware.AdminMiddleware, routes.UpdateConfig)
-	// Start server on port 3000
+
 	slog.Debug("Starting the web-server!")
 	err := app.Listen(":" + config.AppConf.Port)
 	if err != nil {

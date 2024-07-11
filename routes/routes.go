@@ -169,39 +169,38 @@ func SaveFile(c *fiber.Ctx) error {
 }
 
 func Index(c *fiber.Ctx) error {
+	go func(folder string) {
 
-	if c.Params("*") == "" || c.Params("*") == "/" || c.Params("*") == "thumbnails" {
-		slog.Error("invalid folder name")
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "invalid folder name"})
-	}
-	files, err := os.ReadDir(path.Join(config.AppConf.Dir, c.Params("*")))
+		files, err := os.ReadDir(path.Join(config.AppConf.Dir, folder))
 
-	if err != nil {
-		slog.Error("Couldn't create thumbnail!", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Failed to create thumbnail"})
-	}
-
-	thumbs, err := os.ReadDir(path.Join(config.AppConf.Dir, "thumbnails"))
-
-	if err != nil {
-		slog.Error("Couldn't create thumbnail!", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Failed to create thumbnail"})
-	}
-	for _, file := range files {
-		if file.IsDir() {
-			continue
+		if err != nil {
+			slog.Error("Couldn't create thumbnail!", err)
+			// return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Failed to create thumbnail"})
 		}
-		for _, thumb := range thumbs {
-			if strings.Split(thumb.Name(), ".")[0] == strings.Split(file.Name(), ".")[0] {
+
+		thumbs, err := os.ReadDir(path.Join(config.AppConf.Dir, "thumbnails"))
+
+		if err != nil {
+			slog.Error("Couldn't create thumbnail!", err)
+			// return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Failed to create thumbnail"})
+		}
+		for _, file := range files {
+			if file.IsDir() {
 				continue
 			}
-		}
+			for _, thumb := range thumbs {
+				if strings.Split(thumb.Name(), ".")[0] == strings.Split(file.Name(), ".")[0] {
+					continue
+				}
+			}
 
-		if strings.Contains(file.Name(), ".pdf") {
-			thumbnails.GenerateThumbnailFromPdf(path.Join(config.AppConf.Dir, c.Params("*"), file.Name()), "thumbnails")
-		} else {
-			thumbnails.GenerateThumbnailFromImage(path.Join(config.AppConf.Dir, c.Params("*"), file.Name()), "thumbnails")
+			if strings.Contains(file.Name(), ".pdf") {
+				thumbnails.GenerateThumbnailFromPdf(path.Join(config.AppConf.Dir, folder, file.Name()), "thumbnails")
+			} else {
+				thumbnails.GenerateThumbnailFromImage(path.Join(config.AppConf.Dir, folder, file.Name()), "thumbnails")
+			}
 		}
-	}
+	}(c.Params("*"))
+
 	return c.JSON(fiber.Map{"message": "Indexing finished"})
 }

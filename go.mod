@@ -1,4 +1,4 @@
-module receipt_store
+module donkey
 
 go 1.21.0
 

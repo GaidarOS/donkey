@@ -1,13 +1,13 @@
 package main
 
 import (
+	"donkey/config"
+	"donkey/logger"
+	"donkey/middleware"
+	"donkey/routes"
 	"log/slog"
 	"os"
 	"path"
-	"receipt_store/config"
-	"receipt_store/logger"
-	"receipt_store/middleware"
-	"receipt_store/routes"
 
 	maps "golang.org/x/exp/maps"
 

@@ -1,15 +1,15 @@
 package routes
 
 import (
+	"donkey/config"
+	"donkey/helper"
+	"donkey/thumbnails"
+	thumb "donkey/thumbnails"
 	"fmt"
 	"log/slog"
 	"maps"
 	"os"
 	path "path"
-	"receipt_store/config"
-	"receipt_store/helper"
-	"receipt_store/thumbnails"
-	thumb "receipt_store/thumbnails"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"

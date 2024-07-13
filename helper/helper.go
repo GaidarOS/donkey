@@ -1,8 +1,8 @@
 package helper
 
 import (
+	"donkey/logger"
 	"os"
-	"receipt_store/logger"
 )
 
 var (

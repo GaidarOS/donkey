@@ -1,12 +1,12 @@
 package thumbnails
 
 import (
+	"donkey/config"
 	"image"
 	"image/jpeg"
 	"image/png"
 	"os"
 	"path"
-	"receipt_store/config"
 	"strings"
 
 	"github.com/gen2brain/go-fitz"

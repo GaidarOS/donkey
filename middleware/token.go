@@ -1,8 +1,8 @@
 package middleware
 
 import (
+	"donkey/config"
 	"log/slog"
-	"receipt_store/config"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"

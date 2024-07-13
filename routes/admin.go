@@ -1,10 +1,10 @@
 package routes
 
 import (
+	"donkey/config"
+	"donkey/helper"
 	"encoding/json"
 	"log/slog"
-	"receipt_store/config"
-	"receipt_store/helper"
 
 	"github.com/gofiber/fiber/v2"
 )

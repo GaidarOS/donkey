@@ -1,7 +1,7 @@
 package config
 
 import (
-	"receipt_store/helper"
+	"donkey/helper"
 	"testing"
 
 	_ "github.com/joho/godotenv/autoload"

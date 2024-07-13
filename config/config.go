@@ -1,12 +1,12 @@
 package config
 
 import (
+	"donkey/helper"
+	"donkey/logger"
 	"encoding/json"
 	"errors"
 	"log/slog"
 	"os"
-	"receipt_store/helper"
-	"receipt_store/logger"
 
 	"github.com/fsnotify/fsnotify"
 )

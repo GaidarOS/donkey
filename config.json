@@ -17,26 +17,32 @@
   "users": [
     {
       "access_paths": {
-        "apple": true,
-        "banana": true,
-        "kiwi": false
-      },
-      "admin": false,
-      "username": "admin",
-      "password": "admin"
-    },
-    {
-      "access_paths": {
-        "apple": true,
-        "banana": true,
-        "banana_food": true,
-        "banana_other": true,
-        "banana_transportation": true,
-        "kiwi": false
+        "banana_new_path": true,
+        "transportation": true
       },
       "admin": true,
       "username": "banana",
       "password": "banana"
+    },
+    {
+      "access_paths": {
+        "food": true,
+        "other": true,
+        "transportation": true
+      },
+      "admin": true,
+      "username": "dasd",
+      "password": "dasdrefwerwer"
+    },
+    {
+      "access_paths": {
+        "food": true,
+        "other": true,
+        "transportation": true
+      },
+      "admin": false,
+      "username": "new_user",
+      "password": "kjasghdkjhasdf"
     }
   ]
 }

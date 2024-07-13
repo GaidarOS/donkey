@@ -30,7 +30,7 @@ func TokenMiddleware(c *fiber.Ctx) error {
 		})
 	}
 
-	result, err := config.AppConf.FindStructByUser(token)
+	result, err := config.AppConf.FindStructByToken(token)
 	if err != nil {
 		slog.Error("No token found", err)
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -69,7 +69,7 @@ func AdminMiddleware(c *fiber.Ctx) error {
 	slog.Info("Verifying credentials!")
 	slog.Debug("Request headers", slog.Any("all-headers", c.GetReqHeaders()))
 
-	result, err := config.AppConf.FindStructByUser(c.Get("Token"))
+	result, err := config.AppConf.FindStructByToken(c.Get("Token"))
 	if err != nil {
 		slog.Error("No token found", err)
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

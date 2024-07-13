@@ -3,7 +3,6 @@ package routes
 import (
 	"encoding/json"
 	"log/slog"
-	"os"
 	"receipt_store/config"
 	"receipt_store/helper"
 
@@ -25,7 +24,7 @@ func UserCreate(c *fiber.Ctx) error {
 
 	// check if user or token already exist
 	// fail if either does
-	foundUser, err := config.AppConf.FindStructByUser(tkn.Password)
+	foundUser, err := config.AppConf.FindStructByToken(tkn.Password)
 	if err != nil {
 		slog.Debug("No matching token found", err)
 	}
@@ -59,7 +58,11 @@ func UserEdit(c *fiber.Ctx) error {
 
 	// check if user or token already exist
 	// fail if either does
-	foundUser, err := config.AppConf.FindStructByUser(tkn.Password)
+
+	foundUser, err := config.AppConf.FindStructByToken(tkn.UserName)
+	if err != nil {
+		foundUser, err = config.AppConf.FindStructByName(tkn.UserName)
+	}
 	if err != nil {
 		slog.Debug("No matching token found", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Couldn't find a token with that value. Are you sure it exists?"})
@@ -85,7 +88,7 @@ func UserDelete(c *fiber.Ctx) error {
 
 	// check if user or token already exist
 	// fail if either does
-	_, err := config.AppConf.FindStructByUser(tkn.Password)
+	_, err := config.AppConf.FindStructByToken(tkn.Password)
 	if err != nil {
 		slog.Debug("No matching token found", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Couldn't find a token with that value. Are you sure it exists?"})
@@ -113,7 +116,7 @@ func UpdateConfig(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Invalid request"})
 	}
 	rq, _ := json.Marshal(conf)
-	os.Remove(config.AppConf.ConfFile)
+
 	if err := helper.WriteToFile(config.AppConf.ConfFile, rq); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Failed to update config"})
 	}

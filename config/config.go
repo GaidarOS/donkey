@@ -131,7 +131,7 @@ func (c *Config) WriteToConf() error {
 	return nil
 }
 
-func (c *Config) FindStructByUser(token string) (*User, error) {
+func (c *Config) FindStructByToken(token string) (*User, error) {
 	for _, item := range c.Users {
 		if item.Password == token {
 			return &item, nil

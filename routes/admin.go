@@ -49,7 +49,7 @@ func UserCreate(c *fiber.Ctx) error {
 		"data": config.AppConf.Users})
 }
 
-func UserEdit(c *fiber.Ctx) error {
+func UserUpdate(c *fiber.Ctx) error {
 	tkn := config.User{}
 	// Parse the body
 	if err := c.BodyParser(&tkn); err != nil {

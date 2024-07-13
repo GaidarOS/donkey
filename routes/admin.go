@@ -3,6 +3,7 @@ package routes
 import (
 	"encoding/json"
 	"log/slog"
+	"os"
 	"receipt_store/config"
 	"receipt_store/helper"
 
@@ -112,6 +113,7 @@ func UpdateConfig(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Invalid request"})
 	}
 	rq, _ := json.Marshal(conf)
+	os.Remove(config.AppConf.ConfFile)
 	if err := helper.WriteToFile(config.AppConf.ConfFile, rq); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Failed to update config"})
 	}

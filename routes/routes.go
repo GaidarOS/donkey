@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"log/slog"
+	"maps"
 	"os"
 	path "path"
 	"receipt_store/config"
@@ -28,8 +29,10 @@ func GetUser(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
 	}
-	if user.Password != c.Get("Token") {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid request"})
+	if user.Admin {
+		for _, other_user := range config.AppConf.Users {
+			maps.Copy(user.AccessPaths, other_user.AccessPaths)
+		}
 	}
 	user.Password = "obstucted"
 	return c.JSON(fiber.Map{"message": "Getting user",

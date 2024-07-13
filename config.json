@@ -4,22 +4,22 @@
   "depth": "3",
   "confFile": "./config.json",
   "allowedHeaderTypes": {
+    "application/pdf": true,
     "image/gif": true,
     "image/jpeg": true,
-    "image/png": true,
-    "image/tiff": true,
-    "image/x-icon": true,
-    "image/vnd.djvu": true,
-    "image/svg+xml": true,
     "image/jpg": true,
-    "application/pdf": true
+    "image/png": true,
+    "image/svg+xml": true,
+    "image/tiff": true,
+    "image/vnd.djvu": true,
+    "image/x-icon": true
   },
   "users": [
     {
       "access_paths": {
+        "apple": true,
         "banana": true,
-        "kiwi": false,
-        "apple": true
+        "kiwi": false
       },
       "admin": false,
       "username": "admin",
@@ -27,11 +27,14 @@
     },
     {
       "access_paths": {
+        "apple": true,
+        "banana": true,
         "banana_food": true,
+        "banana_other": true,
         "banana_transportation": true,
-        "banana_other": true
+        "kiwi": false
       },
-      "admin": false,
+      "admin": true,
       "username": "banana",
       "password": "banana"
     }

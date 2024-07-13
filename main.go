@@ -90,10 +90,10 @@ func main() {
 	api_v1.Post("/index/*", middleware.TokenMiddleware, routes.Index)
 
 	admin_v1 := api_v1.Group("/admin")
-	admin_v1.Get("/", middleware.AdminMiddleware, routes.UsersList)
-	admin_v1.Post("/", middleware.AdminMiddleware, routes.UserCreate)
-	admin_v1.Put("/", middleware.AdminMiddleware, routes.UserEdit)
-	admin_v1.Delete("/", middleware.AdminMiddleware, routes.UserDelete)
+	admin_v1.Get("/users", middleware.AdminMiddleware, routes.UsersList)
+	admin_v1.Post("/user", middleware.AdminMiddleware, routes.UserCreate)
+	admin_v1.Put("/user", middleware.AdminMiddleware, routes.UserEdit)
+	admin_v1.Delete("/user", middleware.AdminMiddleware, routes.UserDelete)
 	admin_v1.Get("/config", middleware.AdminMiddleware, routes.GetConfig)
 	admin_v1.Post("/config", middleware.AdminMiddleware, routes.UpdateConfig)
 

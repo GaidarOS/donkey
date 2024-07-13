@@ -14,6 +14,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
 	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	slogfiber "github.com/samber/slog-fiber"
 
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -61,13 +62,13 @@ func main() {
 	app.Use(recover.New())
 	// app.Use(csrf.New())
 	app.Use(compress.New())
-	// app.Use(cors.New(cors.Config{
-	// 	AllowOrigins:     "https://gofiber.io, http://127.0.0.1:5173/",
-	// 	AllowHeaders:     "Origin, Content-Type, Accept, Token, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization",
-	// 	AllowCredentials: true,
-	// 	AllowMethods:     "GET, HEAD, PUT, PATCH, POST, DELETE",
-	// 	MaxAge:           0,
-	// }))
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "https://gofiber.io, http://127.0.0.1:5173/",
+		AllowHeaders:     "Origin, Content-Type, Accept, Token, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization",
+		AllowCredentials: true,
+		AllowMethods:     "GET, HEAD, PUT, PATCH, POST, DELETE",
+		MaxAge:           0,
+	}))
 
 	// pass the custom logger through the fiber context
 	app.Use(slogfiber.New(slogger))

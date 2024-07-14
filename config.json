@@ -17,7 +17,7 @@
   "users": [
     {
       "access_paths": {
-        "banana_new_path": true,
+        "food": true,
         "transportation": true
       },
       "admin": true,
@@ -26,23 +26,13 @@
     },
     {
       "access_paths": {
-        "food": true,
-        "other": true,
-        "transportation": true
-      },
-      "admin": true,
-      "username": "dasd",
-      "password": "dasdrefwerwer"
-    },
-    {
-      "access_paths": {
-        "food": true,
-        "other": true,
-        "transportation": true
+        "new_user_food": true,
+        "new_user_other": true,
+        "new_user_transportation": true
       },
       "admin": false,
       "username": "new_user",
-      "password": "kjasghdkjhasdf"
+      "password": "new_password"
     }
   ]
 }

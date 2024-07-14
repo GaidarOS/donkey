@@ -18,6 +18,9 @@
     {
       "access_paths": {
         "food": true,
+        "new_user_food": true,
+        "new_user_other": true,
+        "new_user_transportation": true,
         "transportation": true
       },
       "admin": true,

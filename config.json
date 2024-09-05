@@ -1,0 +1,41 @@
+{
+  "dir": "uploads",
+  "port": "8080",
+  "depth": "3",
+  "confFile": "./config.json",
+  "allowedHeaderTypes": {
+    "application/pdf": true,
+    "image/gif": true,
+    "image/jpeg": true,
+    "image/jpg": true,
+    "image/png": true,
+    "image/svg+xml": true,
+    "image/tiff": true,
+    "image/vnd.djvu": true,
+    "image/x-icon": true
+  },
+  "users": [
+    {
+      "access_paths": {
+        "food": true,
+        "new_user_food": true,
+        "new_user_other": true,
+        "new_user_transportation": true,
+        "transportation": true
+      },
+      "admin": true,
+      "username": "banana",
+      "password": "banana"
+    },
+    {
+      "access_paths": {
+        "new_user_food": true,
+        "new_user_other": true,
+        "new_user_transportation": true
+      },
+      "admin": false,
+      "username": "new_user",
+      "password": "new_password"
+    }
+  ]
+}

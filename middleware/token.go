@@ -1,8 +1,9 @@
 package middleware
 
 import (
+	"donkey/config"
 	"log/slog"
-	"receipt_store/config"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -13,7 +14,14 @@ func TokenMiddleware(c *fiber.Ctx) error {
 
 	// The request should contain a token if the token is invalid throw 403
 
-	if c.Get("Token") == "" {
+	var token string = ""
+	if c.Queries()["token"] != "" {
+		token = c.Queries()["token"]
+	} else {
+		token = c.Get("Token")
+	}
+
+	if token == "" {
 		slog.Error("No token \"Token\" found in the request!")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"status":     "error",
@@ -22,20 +30,31 @@ func TokenMiddleware(c *fiber.Ctx) error {
 		})
 	}
 
-	result, err := config.AppConf.FindStructByToken(c.Get("Token"))
+	result, err := config.AppConf.FindStructByToken(token)
 	if err != nil {
 		slog.Error("No token found", err)
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Unauthorized: No user found with that token",
-		}) 
+		})
 	}
 
-	if !(result.AccessPaths[c.Params("*")] || result.Admin) {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"status":  "error",
-			"message": "Unauthorized: No permissions to access this folder!",
-		}) 
+	// Check if the user has access to this folder
+	param := c.Params("*")
+	if len(strings.Split(param, "/")) > 0 {
+		param = strings.Split(param, "/")[0]
+	}
+	base_path := c.Path()
+	if len(strings.Split(c.Path(), "/")) > 0 {
+		base_path = strings.Split(c.Path(), "/")[3]
+	}
+	if param != "thumbnails" && base_path != "user" {
+		if !(result.AccessPaths[param] || result.Admin) {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"status":  "error",
+				"message": "Unauthorized: No permissions to access this folder!",
+			})
+		}
 	}
 
 	slog.Debug("Found this user from token", slog.Any("config", result))

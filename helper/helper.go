@@ -1,8 +1,8 @@
 package helper
 
 import (
+	"donkey/logger"
 	"os"
-	"receipt_store/logger"
 )
 
 var (
@@ -20,9 +20,9 @@ func DeleteFile(fileName string) error {
 }
 
 func WriteToFile(fileName string, data []byte) error {
-
+	os.Remove(fileName)
 	// Create a file if it doesn't exist
-	file, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0755)
+	file, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		slogger.Error("Error creating the file", err)
 		return err

@@ -1,4 +1,5 @@
 # Donkey
+
 Image storage and manipulation SaaS
 
 ## Why the name Donkey
@@ -18,3 +19,5 @@ Surefooted: Donkeys are surefooted and have a good sense of balance. This makes 
 Low Maintenance: Compared to some other animals, donkeys require relatively low maintenance. They can thrive on simple diets and are generally hardy.
 
 Companionship: Donkeys are often kept as companions for other animals, providing a calming and protective presence. They are known to be good friends to horses and other livestock.
+
+### Endpoints

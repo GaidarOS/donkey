@@ -1,16 +1,15 @@
 package config
 
 import (
+	"donkey/helper"
+	"donkey/logger"
 	"encoding/json"
 	"errors"
 	"log/slog"
 	"os"
-	"receipt_store/helper"
-	"receipt_store/logger"
 
 	"github.com/fsnotify/fsnotify"
 )
-
 
 var (
 	slogger             = logger.Logger()
@@ -81,7 +80,7 @@ func (c *Config) updateFromFile() {
 	if err != nil {
 		slogger.Error("Could not unmarshal the file", err)
 	}
-	slogger.Debug("updated config", slog.Any("config", c))
+	slogger.Info("updated config", slog.Any("config", c))
 }
 
 func (c *Config) watchConfig() {
@@ -132,17 +131,17 @@ func (c *Config) WriteToConf() error {
 	return nil
 }
 
-func (c *Config) FindStructByToken(token string) (*Token, error) {
-	for _, item := range c.Tokens {
-		if item.Value == token {
+func (c *Config) FindStructByToken(token string) (*User, error) {
+	for _, item := range c.Users {
+		if item.Password == token {
 			return &item, nil
 		}
 	}
 	return nil, errors.New("no matching item found")
 }
 
-func (c *Config) FindStructByName(name string) (*Token, error) {
-	for _, item := range c.Tokens {
+func (c *Config) FindStructByName(name string) (*User, error) {
+	for _, item := range c.Users {
 		if item.UserName == name {
 			return &item, nil
 		}
@@ -150,24 +149,24 @@ func (c *Config) FindStructByName(name string) (*Token, error) {
 	return nil, errors.New("no matching item found")
 }
 
-func (c *Config) UpdateStructInToken(target, replacement Token) error {
-	for i := range c.Tokens {
-		if c.Tokens[i].Value == target.Value {
-			c.Tokens[i] = replacement
+func (c *Config) UpdateStructInUser(target, replacement User) error {
+	for i := range c.Users {
+		if c.Users[i].Password == target.Password {
+			c.Users[i] = replacement
 			return nil
 		}
 	}
 	return errors.New("no token found to update")
 }
 
-func (c *Config) DeleteStructFromArray(target Token) error {
-	for i, s := range c.Tokens {
-		if s.Value == target.Value {
+func (c *Config) DeleteStructFromArray(target User) error {
+	for i, s := range c.Users {
+		if s.Password == target.Password {
 			// Swap the element to be deleted with the last element
-			c.Tokens[i] = c.Tokens[len(c.Tokens)-1]
+			c.Users[i] = c.Users[len(c.Users)-1]
 
-			// Truncate the c.Tokens to remove the last element
-			c.Tokens = c.Tokens[:len(c.Tokens)-1]
+			// Truncate the c.Users to remove the last element
+			c.Users = c.Users[:len(c.Users)-1]
 
 			return nil
 		}

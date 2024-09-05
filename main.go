@@ -5,6 +5,7 @@ import (
 	"donkey/logger"
 	"donkey/middleware"
 	"donkey/routes"
+	"fmt"
 	"log/slog"
 	"os"
 	"path"
@@ -40,7 +41,7 @@ func init() {
 
 	for _, user := range config.AppConf.Users {
 		for _, folder := range maps.Keys(user.AccessPaths) {
-			slog.Info("Creting user folder " + folder + " if it doesn't exist")
+			slog.Debug("Creting user folder " + folder + " if it doesn't exist")
 			if err := os.MkdirAll(path.Join(config.AppConf.Dir, folder), os.ModePerm); err != nil {
 				slog.Error("Couldn't create thumbnails directory", err)
 			}
@@ -54,6 +55,8 @@ func main() {
 	app := fiber.New(fiber.Config{
 		AppName:   "Donkey v1.0.0",
 		BodyLimit: 50 * 1024 * 1024,
+		// Disable the default startup message
+		DisableStartupMessage: true,
 		// StreamRequestBody:            true,
 		// If run with the following param the list of routes will be printed in the log when starting the server
 		// EnablePrintRoutes: true,
@@ -105,6 +108,29 @@ func main() {
 	admin_v1.Post("/config", middleware.AdminMiddleware, routes.UpdateConfig)
 
 	slog.Debug("Starting the web-server!")
+
+	app.Hooks().OnListen(func(listenData fiber.ListenData) error {
+
+		// ASCII generated with
+		// https://www.asciiart.eu/text-to-ascii-art
+		// Font: Ghost
+		// http://www.jave.de/figlet/fonts/details/ghost.html
+
+		fmt.Println("\n" +
+			" _ .-') _                    .-') _ .-. .-')     ('-.\n" +
+			"( (  OO) )                  ( OO ) )\\  ( OO )  _(  OO)\n" +
+			" \\     .'_  .-'),-----. ,--./ ,--,' ,--. ,--. (,------. ,--.   ,--.\n" +
+			" ,`'--..._)( OO'  .-.  '|   \\ |  |\\ |  .'   /  |  .---'  \\  `.'  /\n" +
+			" |  |  \\  '/   |  | |  ||    \\|  | )|      /,  |  |    .-')     /\n" +
+			" |  |   ' |\\_) |  |\\|  ||  .     |/ |     ' _)(|  '--.(OO  \\   /\n" +
+			" |  |   / :  \\ |  | |  ||  |\\    |  |  .   \\   |  .--' |   /  /\n" +
+			" |  '--'  /   `'  '-'  '|  | \\   |  |  |\\   \\  |  `---.`-./  /\n" +
+			" `-------'      `-----' `--'  `--'  `--' '--'  `------'  `--'\n" +
+			" ")
+		slog.Info("To connect to the server use => http://" + listenData.Host + ":" + listenData.Port)
+		return nil
+	})
+
 	err := app.Listen(":" + config.AppConf.Port)
 	if err != nil {
 		slog.Error("Couldn't start the fiber server", err)

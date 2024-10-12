@@ -31,19 +31,19 @@ func init() {
 
 	// Make sure that the base directory exists
 	if err := os.MkdirAll(config.AppConf.Dir, os.ModePerm); err != nil {
-		slog.Error("Couldn't create the directory", err)
+		slog.Error("Couldn't create the directory", "error", err)
 	}
 
 	// Make sure that the base directory exists
 	if err := os.MkdirAll(path.Join(config.AppConf.Dir, "thumbnails"), os.ModePerm); err != nil {
-		slog.Error("Couldn't create thumbnails directory", err)
+		slog.Error("Couldn't create thumbnails directory", "error", err)
 	}
 
 	for _, user := range config.AppConf.Users {
 		for _, folder := range maps.Keys(user.AccessPaths) {
 			slog.Debug("Creting user folder " + folder + " if it doesn't exist")
 			if err := os.MkdirAll(path.Join(config.AppConf.Dir, folder), os.ModePerm); err != nil {
-				slog.Error("Couldn't create thumbnails directory", err)
+				slog.Error("Couldn't create thumbnails directory", "error", err)
 			}
 		}
 	}
@@ -133,6 +133,6 @@ func main() {
 
 	err := app.Listen(":" + config.AppConf.Port)
 	if err != nil {
-		slog.Error("Couldn't start the fiber server", err)
+		slog.Error("Couldn't start the fiber server", "error", err)
 	}
 }

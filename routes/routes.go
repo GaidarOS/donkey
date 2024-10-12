@@ -19,10 +19,29 @@ type downloadRequest struct {
 	Filename string `json:"filename"`
 }
 
+// Login godoc
+//
+//	@Summary					Login with your username and password
+//	@Description				get accounts
+//	@Tags						accounts
+//	@securityDefinitions.basic	BasicAuth
+//	@Success					200	{string}	json	"{"message": "Authenticated"}"
+//	@Failure					401	{object}	httputil.HTTPError
+//	@Router						/login [post]
 func Login(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Authenticated"})
 }
 
+// GetUser godoc
+//
+//	@Summary		Fetch a user information
+//	@Description	Return a user information
+//	@Tags			accounts
+//	@Header			200	{string}	Token	"usertoken"
+//	@Success		200	{string}	json	"{"message": "Authenticated"}"
+//	@Failure		401	{object}	httputil.HTTPError
+//	@Failure		404	{object}	httputil.HTTPError
+//	@Router			/user [post]
 func GetUser(c *fiber.Ctx) error {
 	username := c.Params("*")
 	user, err := config.AppConf.FindStructByName(username)
@@ -43,6 +62,7 @@ func DownloadFile(c *fiber.Ctx) error {
 	// Parse JSON request body
 	param := c.Params("*")
 	possible_thumbnails := ""
+	slog.Info("params" + param)
 	if len(strings.Split(param, "/")) > 0 {
 		possible_thumbnails = strings.Split(param, "/")[0]
 	}

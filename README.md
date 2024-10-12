@@ -22,15 +22,15 @@ Companionship: Donkeys are often kept as companions for other animals, providing
 
 ## Endpoints
 
-| Path                  |     Method      | Header | Description        | Notes        | Status  |
-| --------------------- | :-------------: | ------ | ------------------ | ------------ | ------- |
-| `api/v1/login`        |      POST       | N/A    | Expects Basic Auth | Not Used atm | 200/401 |
-| `api/v1/download/*`   |       GET       | Token  |                    |              |         |
-| `api/v1/list/*`       |       GET       | Token  |                    |              |         |
-| `api/v1/upload/*`     |      POST       | Token  |                    |              |         |
-| `api/v1/delete/*`     |     DELETE      | Token  |                    |              |         |
-| `api/v1/user/*`       |       GET       | Token  |                    |              |         |
-| `api/v1/index/*`      |      POST       | Token  |                    |              |         |
-| `api/v1/admin/users`  |       GET       | Token  |                    |              |         |
-| `api/v1/admin/user`   | POST/PUT/DELETE | Token  |                    |              |         |
-| `api/v1/admin/config` |    GET/POST     | Token  |                    |              |         |
+| Path                  |     Method      | Header | Description                          | Notes                      | Status      |
+| --------------------- | :-------------: | ------ | ------------------------------------ | -------------------------- | ----------- |
+| `api/v1/login`        |      POST       | N/A    | Expects Basic Auth                   | Not Used atm               | 200/401     |
+| `api/v1/download/*`   |       GET       | Token  | Expects a path of a file, in the URL | Returns the file if exists | 200/401/404 |
+| `api/v1/list/*`       |       GET       | Token  |                                      |                            |             |
+| `api/v1/upload/*`     |      POST       | Token  |                                      |                            |             |
+| `api/v1/delete/*`     |     DELETE      | Token  |                                      |                            |             |
+| `api/v1/user/*`       |       GET       | Token  |                                      |                            |             |
+| `api/v1/index/*`      |      POST       | Token  |                                      |                            |             |
+| `api/v1/admin/users`  |       GET       | Token  |                                      |                            |             |
+| `api/v1/admin/user`   | POST/PUT/DELETE | Token  |                                      |                            |             |
+| `api/v1/admin/config` |    GET/POST     | Token  |                                      |                            |             |

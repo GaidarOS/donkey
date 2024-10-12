@@ -1,0 +1,49 @@
+basePath: /api/v1
+host: localhost:8080
+info:
+  contact:
+    email: vk@cloudnation.dk
+    name: API Support
+  description: This is a swagger representation of the application's API
+  license:
+    name: MIT
+    url: ./LICENSE
+  termsOfService: http://swagger.io/terms/
+  title: Donkey API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      description: get accounts
+      responses:
+        "200":
+          description: '{"message": "Authenticated"}'
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      summary: Login with your username and password
+      tags:
+      - accounts
+  /user:
+    post:
+      description: Return a user information
+      responses:
+        "200":
+          description: '{"message": "Authenticated"}'
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Unauthorized
+          schema:
+            type: string
+      summary: Fetch a user information
+      tags:
+      - accounts
+swagger: "2.0"

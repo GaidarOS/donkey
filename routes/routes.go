@@ -2,12 +2,12 @@ package routes
 
 import (
 	"donkey/config"
+	"donkey/database"
 	"donkey/helper"
 	"donkey/thumbnails"
 	thumb "donkey/thumbnails"
 	"fmt"
 	"log/slog"
-	"maps"
 	"os"
 	path "path"
 	"strings"
@@ -15,28 +15,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type downloadRequest struct {
-	Filename string `json:"filename"`
-}
-
-func Login(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Authenticated"})
-}
-
-func GetUser(c *fiber.Ctx) error {
-	username := c.Params("*")
-	user, err := config.AppConf.FindStructByName(username)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
-	}
-	if user.Admin {
-		for _, other_user := range config.AppConf.Users {
-			maps.Copy(user.AccessPaths, other_user.AccessPaths)
-		}
-	}
-	user.Password = "obstucted"
-	return c.JSON(fiber.Map{"message": "Getting user",
-		"data": user})
+func UsersList(c *fiber.Ctx) error {
+	return c.JSON(fiber.Map{"message": "List of user tokens",
+		"data": config.AppConf.Users})
 }
 
 func DownloadFile(c *fiber.Ctx) error {
@@ -206,4 +187,46 @@ func Index(c *fiber.Ctx) error {
 	}(c.Params("*"))
 
 	return c.JSON(fiber.Map{"message": "Indexing finished"})
+}
+
+func GetBooks(c *fiber.Ctx) error {
+
+	var books []config.Book
+	result := database.DB.Find(&books)
+	slog.Info("This is the list of books found: %s", slog.Any("err", result.Error))
+
+	if result.Error != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"message": "Failed to fetch items",
+			"error":   result.Error.Error(),
+		})
+	}
+	return c.JSON(fiber.Map{
+		"message": "Found items",
+		"items":   books,
+	})
+
+}
+
+func CreateBook(c *fiber.Ctx) error {
+
+	var req config.Book
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+	book := config.Book{
+		Title:  req.Title,
+		Author: req.Author,
+	}
+
+	res := database.DB.Create(&book)
+	if res.Error != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"message": res.Error.Error(),
+		})
+	}
+
+	return c.JSON(fiber.Map{"message": "Book has been added"})
 }

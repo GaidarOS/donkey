@@ -1,10 +1,21 @@
 package config
 
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
+type CreationTime struct {
+	CreatedAt time.Time `gorm:"type:timestamp"`
+	UpdatedAt time.Time `gorm:"type:timestamp"`
+}
+
 type User struct {
-	AccessPaths map[string]bool `json:"access_paths"`
-	Admin       bool            `json:"admin"`
-	UserName    string          `json:"username"`
-	Password    string          `json:"password"`
+	ID           uint   `gorm:"primaryKey;autoIncrement" json:"id"`
+	UserName     string `gorm:"not null;column:username;unique" json:"username"`
+	PasswordHash string `gorm:"not null;column:password" json:"password_hash,omitempty"`
+	CreationTime
 }
 
 type Config struct {
@@ -14,4 +25,24 @@ type Config struct {
 	ConfFile           string          `json:"confFile" default:"./config.json"`
 	AllowedHeaderTypes map[string]bool `json:"allowedHeaderTypes"`
 	Users              []User          `json:"users"`
+}
+
+// book.go
+type Book struct {
+	ID     uint   `gorm:"primaryKey" json:"id"`
+	Title  string `gorm:"not null" json:"title"`
+	Author string `gorm:"not null" json:"author"`
+	CreationTime
+}
+
+type UserKeys struct {
+	ID     uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
+	PGPKey string    `gorm:"type:string;column:pgpkey"`
+	CreationTime
+}
+
+// The request Dto for both register and login
+type AuthRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }

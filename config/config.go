@@ -1,7 +1,6 @@
 package config
 
 import (
-	"donkey/helper"
 	"donkey/logger"
 	"encoding/json"
 	"errors"
@@ -37,7 +36,7 @@ func init() {
 	// check if file exists
 	filesExist, err := initChecks()
 	if err != nil {
-		slogger.Error("Critical Error!", "error", err)
+		slogger.Error("Critical Error!", slog.Any("err", err))
 		os.Exit(1)
 	}
 
@@ -73,12 +72,12 @@ func (c *Config) updateFromFile() {
 	slogger.Debug("Updating configuration from file")
 	file, err := os.ReadFile(c.ConfFile)
 	if err != nil {
-		slogger.Error("No file: ", "error", err)
+		slogger.Error("No file: ", slog.Any("err", err))
 	}
 
 	err = json.Unmarshal([]byte(file), &c)
 	if err != nil {
-		slogger.Error("Could not unmarshal the file", "error", err)
+		slogger.Error("Could not unmarshal the file", slog.Any("err", err))
 	}
 	// We can't seriously print the config as standard info
 	// when user information is contained in it.
@@ -91,7 +90,7 @@ func (c *Config) watchConfig() {
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		slogger.Warn("Error creating file watcher", "error", err)
+		slogger.Warn("Error creating file watcher", slog.Any("err", err))
 	}
 	defer watcher.Close()
 
@@ -99,7 +98,7 @@ func (c *Config) watchConfig() {
 	go func() {
 		wtchr, err := fsnotify.NewWatcher()
 		if err != nil {
-			slogger.Error("Error creating file watcher", "error", err)
+			slogger.Error("Error creating file watcher", slog.Any("err", err))
 		}
 		addToWatcher(wtchr, c.ConfFile)
 		defer wtchr.Close()
@@ -112,72 +111,15 @@ func (c *Config) watchConfig() {
 					c.updateFromFile()
 				}
 			case err := <-wtchr.Errors:
-				slogger.Error("Config didn't change changed", "error", err)
+				slogger.Error("Config didn't change changed", slog.Any("err", err))
 			}
 			addToWatcher(wtchr, c.ConfFile)
 		}
 	}()
 }
 
-func (c *Config) WriteToConf() error {
-	// Marshal the struct to JSON
-	jsonData, err := json.MarshalIndent(c, "", "  ")
-	if err != nil {
-		slogger.Error("Error marshaling JSON:", "error", err)
-		return err
-	}
-
-	helper.WriteToFile(c.ConfFile, jsonData)
-
-	slogger.Info("Config successfully saved to", slog.Any("filename", c.ConfFile))
-	return nil
-}
-
-func (c *Config) FindStructByToken(token string) (*User, error) {
-	for _, item := range c.Users {
-		if item.Password == token {
-			return &item, nil
-		}
-	}
-	return nil, errors.New("no matching item found")
-}
-
-func (c *Config) FindStructByName(name string) (*User, error) {
-	for _, item := range c.Users {
-		if item.UserName == name {
-			return &item, nil
-		}
-	}
-	return nil, errors.New("no matching item found")
-}
-
-func (c *Config) UpdateStructInUser(target, replacement User) error {
-	for i := range c.Users {
-		if c.Users[i].Password == target.Password {
-			c.Users[i] = replacement
-			return nil
-		}
-	}
-	return errors.New("no token found to update")
-}
-
-func (c *Config) DeleteStructFromArray(target User) error {
-	for i, s := range c.Users {
-		if s.Password == target.Password {
-			// Swap the element to be deleted with the last element
-			c.Users[i] = c.Users[len(c.Users)-1]
-
-			// Truncate the c.Users to remove the last element
-			c.Users = c.Users[:len(c.Users)-1]
-
-			return nil
-		}
-	}
-	return errors.New("couldn't find or delete the token")
-}
-
 func addToWatcher(watcher *fsnotify.Watcher, filename string) {
 	if err := watcher.Add(filename); err != nil {
-		slogger.Error("Could not add file to the watcher", "error", err)
+		slogger.Error("Could not add file to the watcher", slog.Any("err", err))
 	}
 }

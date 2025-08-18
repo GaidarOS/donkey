@@ -52,7 +52,7 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	token, err := auth.GenerateToken(user.ID)
+	token, err := auth.GenerateToken(*user.ID)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"message": err.Error(),

@@ -4,7 +4,6 @@ import (
 	"donkey/config"
 	"donkey/database"
 	"donkey/helper"
-	"donkey/thumbnails"
 	thumb "donkey/thumbnails"
 	"fmt"
 	"log/slog"
@@ -15,9 +14,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+func HealthCheck(c *fiber.Ctx) error {
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status":  "success",
+		"message": "Welcome Donkey!",
+	})
+}
+
 func UsersList(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{"message": "List of user tokens",
-		"data": config.AppConf.Users})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "List of user tokens",
+		"data":    config.AppConf.Users,
+	})
 }
 
 func DownloadFile(c *fiber.Ctx) error {
@@ -179,9 +187,9 @@ func Index(c *fiber.Ctx) error {
 			}
 
 			if strings.Contains(file.Name(), ".pdf") {
-				thumbnails.GenerateThumbnailFromPdf(path.Join(config.AppConf.Dir, folder, file.Name()), "thumbnails")
+				thumb.GenerateThumbnailFromPdf(path.Join(config.AppConf.Dir, folder, file.Name()), "thumbnails")
 			} else {
-				thumbnails.GenerateThumbnailFromImage(path.Join(config.AppConf.Dir, folder, file.Name()), "thumbnails")
+				thumb.GenerateThumbnailFromImage(path.Join(config.AppConf.Dir, folder, file.Name()), "thumbnails")
 			}
 		}
 	}(c.Params("*"))

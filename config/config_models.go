@@ -7,14 +7,17 @@ import (
 )
 
 type CreationTime struct {
-	CreatedAt time.Time `gorm:"type:timestamp"`
-	UpdatedAt time.Time `gorm:"type:timestamp"`
+	ID        *uuid.UUID `gorm:"type:text;default:uuid_generate_v4();primary_key"`
+	CreatedAt *time.Time `gorm:"not null;type:timestamp;default:now()"`
+	UpdatedAt *time.Time `gorm:"not null;type:timestamp;default:now()"`
 }
 
 type User struct {
-	ID           uint   `gorm:"primaryKey;autoIncrement" json:"id"`
-	UserName     string `gorm:"not null;column:username;unique" json:"username"`
-	PasswordHash string `gorm:"not null;column:password" json:"password_hash,omitempty"`
+	Name         string  `gorm:"type:varchar(100);not null"`
+	UserName     string  `gorm:"not null;column:username;unique" json:"username"`
+	PasswordHash string  `gorm:"not null;column:password" json:"password_hash,omitempty"`
+	Role         *string `gorm:"type:varchar(50);default:'user';not null"`
+	Verified     *bool   `gorm:"not null;default:false"`
 	CreationTime
 }
 
@@ -29,7 +32,6 @@ type Config struct {
 
 // book.go
 type Book struct {
-	ID     uint   `gorm:"primaryKey" json:"id"`
 	Title  string `gorm:"not null" json:"title"`
 	Author string `gorm:"not null" json:"author"`
 	CreationTime
@@ -41,7 +43,7 @@ type UserKeys struct {
 	CreationTime
 }
 
-// The request Dto for both register and login
+// The request for both register and login
 type AuthRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

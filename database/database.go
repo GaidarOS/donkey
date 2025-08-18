@@ -21,11 +21,9 @@ var (
 // Connect to the database
 func Connect() {
 
-	dsn := ""
-
 	switch os.Getenv("DB_KIND") {
 	case "postgreslq", "postgres":
-		dsn = fmt.Sprintf(
+		dsn := fmt.Sprintf(
 			"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 			os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"),
 		)
@@ -45,6 +43,6 @@ func Connect() {
 	slog.Info("Connection Opened to Database")
 
 	// Migrate the schemas
-	DB.AutoMigrate(&config.Book{}, &config.User{})
+	DB.AutoMigrate(&config.Book{}, &config.User{}, &config.UserKeys{})
 	slog.Info("Database Migrated")
 }
